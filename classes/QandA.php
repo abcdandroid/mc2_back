@@ -186,6 +186,7 @@ class QandA
         $q = "select * from cars where name like '%$search%' order by name asc ";
 
 
+
         /* if($search="*") $q = "select * from cars";*/
 
         $stmt = $conn->prepare($q);

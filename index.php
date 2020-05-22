@@ -134,6 +134,14 @@ switch ($route) {
         $a = new Store();
         $a->getAllWarranties();
         break;
+    case "getCountriesAndWarranties":
+        $a = new Store();
+        $a->getCountriesAndWarranties();
+        break;
+    case "getAllCountries":
+        $a = new Store();
+        $a->getAllCountries();
+        break;
     case "getAds":
         $a = new Ads();
         $a->getAds();

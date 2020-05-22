@@ -273,10 +273,11 @@ class Store
 
     public function getAllWarranties()
     {
+        header('Content-Type: application/json');
         $conn = MyPDO::getInstance();
 
 
-        $q = "select * from warrantys order by id desc ";
+        $q = "select * from warrantys order by name  ";
 
 
         $stmt = $conn->prepare($q);
@@ -285,8 +286,30 @@ class Store
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
             array_push($warranties, $result);
         }
+        return ($warranties);
+    }
+
+    public function getAllCountries()
+    {
         header('Content-Type: application/json');
-        echo json_encode($warranties);
+        $conn = MyPDO::getInstance();
+
+
+        $q = "select * from countries order by name  ";
+
+
+        $stmt = $conn->prepare($q);
+        $stmt->execute();
+        $warranties = array();
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            array_push($warranties, $result);
+        }
+        return ($warranties);
+    }
+
+    public function getCountriesAndWarranties()
+    {
+        echo json_encode(array("countries"=>$this->getAllCountries(),"warrantys"=>$this->getAllWarranties()));
     }
 
 
