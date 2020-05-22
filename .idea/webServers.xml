@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="56f99424-8901-4ea0-8008-780a77ce103a" name="mechanic api" url="http://ftp.drkamal3.com">
+        <fileTransfer host="ftp.drkamal3.com" port="21" rootFolder="/httpdocs">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+          <option name="port" value="21" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
