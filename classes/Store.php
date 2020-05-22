@@ -50,7 +50,7 @@ class Store
             else {
                 $q = "select * from store where (name like '%$goodName%' and (suitable_car like '%,$carId,%' or suitable_car like '$carId,%' or suitable_car like '%,$carId' or suitable_car =$carId))   ";
             }
-        } elseif ($carName == "null" and  $goodName== "null" and $search != "null") {
+        } elseif ($carName == "null" and $goodName == "null" and $search != "null") {
             $carId = app::getIdByCar($search);
             if ($carId == -1)
                 $q = "select * from store where (name like '%$search%') ";
@@ -234,7 +234,7 @@ class Store
         $stmt->execute();
         $goods = array();
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $arrayCarName=array("id"=>$result["id"],"name"=>$result["name"]);
+            $arrayCarName = array("id" => $result["id"], "name" => $result["name"]);
             array_push($goods, $arrayCarName);
         }
         echo json_encode($goods);
@@ -269,6 +269,24 @@ class Store
             array_push($arrayAll, $result);
         }
         echo json_encode($arrayAll);
+    }
+
+    public function getAllWarranties()
+    {
+        $conn = MyPDO::getInstance();
+
+
+        $q = "select * from warrantys order by id desc ";
+
+
+        $stmt = $conn->prepare($q);
+        $stmt->execute();
+        $warranties = array();
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            array_push($warranties, $result);
+        }
+        header('Content-Type: application/json');
+        echo json_encode($warranties);
     }
 
 

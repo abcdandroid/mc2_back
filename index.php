@@ -130,6 +130,10 @@ switch ($route) {
         $a = new Store();
         $a->getStore2();
         break;
+    case "getAllWarranties":
+        $a = new Store();
+        $a->getAllWarranties();
+        break;
     case "getAds":
         $a = new Ads();
         $a->getAds();
