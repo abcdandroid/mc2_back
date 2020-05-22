@@ -76,6 +76,42 @@ class Store
         echo json_encode($goods);
     }
 
+    public function getStore3()
+    {
+        $conn = MyPDO::getInstance();
+        $lastId = app::get("lastId");
+        $carId = $_REQUEST["carId"] == 0 ? "" : $_REQUEST["carId"];
+        $goodId = $_REQUEST["goodId"] == 0 ? "" : $_REQUEST["goodId"];
+        $warrantyId = $_REQUEST["warrantyId"] == 0 ? "" : $_REQUEST["warrantyId"];
+        $countryId = $_REQUEST["countryId"] == 0 ? "" : $_REQUEST["countryId"];
+        $isStock = $_REQUEST["isStock"];
+
+
+        $carFilter = " suitable_car like '%,$carId,%' or suitable_car like '$carId,%' or suitable_car like '%,$carId' or suitable_car =$carId ";
+        $goodFilter = " id = '$goodId' ";
+        $warrantyFilter = " warranty = '$warrantyId' ";
+        $countryFilter = " made_by = '$countryId' ";
+        $countryFilter = " is_stock = '$isStock' ";
+
+        $goods = array();
+        $limit = " order by id desc limit 8 ";
+        if ($lastId != 0) $limit = "and id<$lastId " . $limit;
+        $q = "select * from store where (1) and ( $carFilter ) and ( $goodFilter ) and ( $warrantyFilter ) and ( $countryFilter ) and ( $countryFilter ) ";
+
+
+        //echo $q . $limit;
+        $stmt = $conn->prepare($q . $limit);
+        $stmt->execute();
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $result["fileSize"] = $this->getRemoteFileSize($result["voice"]);
+            $result["suitable_car"] = app::getCarsById($result["suitable_car"]);
+            array_push($goods, $result);
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode($goods);
+    }
+
 
     function getRemoteFileSize($url, $formatSize = true, $useHead = true)
     {
@@ -283,6 +319,8 @@ class Store
         $stmt = $conn->prepare($q);
         $stmt->execute();
         $warranties = array();
+
+        array_push($warranties, array("id" => 0, "name" => "همه گارانتی ها"));
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
             array_push($warranties, $result);
         }
@@ -301,6 +339,7 @@ class Store
         $stmt = $conn->prepare($q);
         $stmt->execute();
         $warranties = array();
+        array_push($warranties, array("id" => 0, "name" => "همه کشورها"));
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
             array_push($warranties, $result);
         }
@@ -309,7 +348,7 @@ class Store
 
     public function getCountriesAndWarranties()
     {
-        echo json_encode(array("countries"=>$this->getAllCountries(),"warrantys"=>$this->getAllWarranties()));
+        echo json_encode(array("countries" => $this->getAllCountries(), "warrantys" => $this->getAllWarranties()));
     }
 
 
