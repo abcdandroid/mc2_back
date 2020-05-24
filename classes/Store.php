@@ -78,25 +78,50 @@ class Store
 
     public function getStore3()
     {
+        //http://drkamal3.com/Mechanic/index.php?route=getStore3&lastId=0&carId=0&goodId=0&warrantyId=0&countryId=0&isStock=0#
         $conn = MyPDO::getInstance();
         $lastId = app::get("lastId");
-        $carId = $_REQUEST["carId"] == 0 ? "" : $_REQUEST["carId"];
-        $goodId = $_REQUEST["goodId"] == 0 ? "" : $_REQUEST["goodId"];
-        $warrantyId = $_REQUEST["warrantyId"] == 0 ? "" : $_REQUEST["warrantyId"];
-        $countryId = $_REQUEST["countryId"] == 0 ? "" : $_REQUEST["countryId"];
+        $carId = $_REQUEST["carId"];
+        $goodId = $_REQUEST["goodId"];
+        $warrantyId = $_REQUEST["warrantyId"];
+        $countryId = $_REQUEST["countryId"];
         $isStock = $_REQUEST["isStock"];
 
+        if ($carId == -1) die("bacCarName");
+        if ($goodId == -1) die("badGoodName");
 
-        $carFilter = " suitable_car like '%,$carId,%' or suitable_car like '$carId,%' or suitable_car like '%,$carId' or suitable_car =$carId ";
-        $goodFilter = " id = '$goodId' ";
-        $warrantyFilter = " warranty = '$warrantyId' ";
-        $countryFilter = " made_by = '$countryId' ";
-        $countryFilter = " is_stock = '$isStock' ";
+        if ($carId != 0) {
+            $carFilter = " suitable_car like '%,$carId,%' or suitable_car like '$carId,%' or suitable_car like '%,$carId' or suitable_car =$carId ";
+        } else {
+            $carFilter = "  suitable_car like '%' ";
+        }
+        if ($goodId != 0) {
+            $goodFilter = " good_id = '$goodId' ";
+        } else {
+            $goodFilter = " good_id like '%' ";
+        }
+        if ($warrantyId != 0) {
+            $warrantyFilter = " warranty = '$warrantyId' ";
+        } else {
+
+            $warrantyFilter = " warranty like '%' ";
+        }
+
+        if ($countryId != 0) {
+            $countryFilter = " made_by = '$countryId' ";
+        } else {
+            $countryFilter = " made_by like '%' ";
+        }
+        if ($isStock != 0) {
+            $stockFilter = " is_stock = '$isStock' ";
+        } else {
+            $stockFilter = " is_stock like '%' ";
+        }
 
         $goods = array();
         $limit = " order by id desc limit 8 ";
         if ($lastId != 0) $limit = "and id<$lastId " . $limit;
-        $q = "select * from store where (1) and ( $carFilter ) and ( $goodFilter ) and ( $warrantyFilter ) and ( $countryFilter ) and ( $countryFilter ) ";
+        $q = "select * from store where  ( $carFilter ) and ( $goodFilter ) and ( $warrantyFilter ) and ( $countryFilter ) and ( $stockFilter ) ";
 
 
         //echo $q . $limit;
@@ -105,11 +130,14 @@ class Store
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $result["fileSize"] = $this->getRemoteFileSize($result["voice"]);
             $result["suitable_car"] = app::getCarsById($result["suitable_car"]);
+            $result["good_id"] = app::getGoodById($result["good_id"]);
+            $result["warranty"] = app::getWarrantyById($result["warranty"]);
+            $result["made_by"] = app::getCountryById($result["made_by"]);
             array_push($goods, $result);
         }
 
         header('Content-Type: application/json');
-        echo json_encode($goods);
+        echo json_encode($goods); /* */
     }
 
 

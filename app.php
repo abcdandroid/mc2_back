@@ -59,6 +59,63 @@ class app
         return $id;
     }
 
+    public static function getGoodById($id)
+    {
+        $conn = MyPDO::getInstance();
+
+        $q = "select * from goods where id=:id";
+        $stmt = $conn->prepare($q);
+        $stmt->bindParam("id", $id);
+        $stmt->execute();
+        $good = $stmt->fetch(PDO::FETCH_ASSOC)["name"];
+
+        if ($good) {
+            return ($good);
+        } else {
+            $array1 = array();
+            array_push($array1, array("id" => -1, "name" => "not found"));
+            return json_encode($array1);
+        }
+    }
+
+    public static function getWarrantyById($id)
+    {
+        $conn = MyPDO::getInstance();
+
+        $q = "select * from warrantys where id=:id";
+        $stmt = $conn->prepare($q);
+        $stmt->bindParam("id", $id);
+        $stmt->execute();
+        $warranty = $stmt->fetch(PDO::FETCH_ASSOC)["name"];
+
+        if ($warranty) {
+            return ($warranty);
+        } else {
+            $array1 = array();
+            array_push($array1, array("id" => -1, "name" => "not found"));
+            return json_encode($array1);
+        }
+    }
+
+    public static function getCountryById($id)
+    {
+        $conn = MyPDO::getInstance();
+
+        $q = "select * from countries where id=:id";
+        $stmt = $conn->prepare($q);
+        $stmt->bindParam("id", $id);
+        $stmt->execute();
+        $country = $stmt->fetch(PDO::FETCH_ASSOC)["name"];
+
+        if ($country) {
+            return ($country);
+        } else {
+            $array1 = array();
+            array_push($array1, array("id" => -1, "name" => "not found"));
+            return json_encode($array1);
+        }
+    }
+
     public static function test()
     {
         $conn = MyPDO::getInstance();

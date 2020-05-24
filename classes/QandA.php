@@ -42,7 +42,6 @@ class QandA
     }
 
 
-
     public function questionAdd($entrance_id, $q_text, $carId, $q_image_url1, $q_image_url2, $q_image_url3)
     {
         //http://drkamal3.com/Mechanic/index.php?route=questionAdd&q_text=a&entrance_id=1&car=c
@@ -84,7 +83,7 @@ class QandA
 
     public function addToCounterQuestion()
     {
-        
+
         $q_id = app::get("q_id");
         $entrance_id = app::get("entrance_id");
 
@@ -186,7 +185,6 @@ class QandA
         $q = "select * from cars where name like '%$search%' order by name asc ";
 
 
-
         /* if($search="*") $q = "select * from cars";*/
 
         $stmt = $conn->prepare($q);
@@ -233,8 +231,23 @@ class QandA
 
     public function calculate($a = 0, $b = 0)
     {
-        //echo "test";
-        echo pow(($a * $a + $b * $b), 0.5);
+        $conn = MyPDO::getInstance();
+        $q = "SELECT id FROM `goods` WHERE 1";
+        $stmt = $conn->prepare($q);
+        $stmt->execute();
+        $aa = array();
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            array_push($aa, $result['id']);
+        }
+
+        foreach ($aa as $k => $v) {
+            $i=1-$v%2;
+            echo $i."&&";
+            $q2 = "update  store set status='$i'  where id = '$v'";
+            $stmt2 = $conn->prepare($q2);
+            $stmt2->execute();
+        }
+
     }
 
     public function searchTitle()
