@@ -168,7 +168,7 @@ switch ($route) {
         break;
     case "test":
         $a = new QandA();
-        $a->calculate(126.813803317113144433,59.65869140625112233);
+        $a->calculate("https://dl.songsara.net/RaMt!N/99/1-Farvardin/Chris%20Snelling%20-%20Gentle%20Moments%20%282020%29%20SONGSARA.NET/03%20Paper%20Planes.mp3");
         break;
     default :
         echo "not valid route";

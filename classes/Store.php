@@ -87,8 +87,72 @@ class Store
         $countryId = $_REQUEST["countryId"];
         $isStock = $_REQUEST["isStock"];
 
-        if ($carId == -1) die("bacCarName");
-        if ($goodId == -1) die("badGoodName");
+        if ($carId == -1 && $goodId!=-1) {
+            $errorCarArray = array();
+            $tmpCarArray=array();
+            $tmpCarArray["id"]="-2";
+            $tmpCarArray["preview"]="0";
+            $tmpCarArray["good_id"]="0";
+            $tmpCarArray["good_desc"]="0";
+            $tmpCarArray["voice"]="0";
+            $tmpCarArray["price_time"]="0";
+            $tmpCarArray["price"]="0";
+            $tmpCarArray["suitable_car"]="0";
+            $tmpCarArray["thumbnails"]="0";
+            $tmpCarArray["made_by"]="0";
+            $tmpCarArray["company"]="0";
+            $tmpCarArray["warranty"]="0";
+            $tmpCarArray["is_stock"]="0";
+            $tmpCarArray["status"]="0";
+            $tmpCarArray["fileSize"]="0";
+            array_push($errorCarArray,$tmpCarArray);
+            echo json_encode($errorCarArray);
+            die();
+        }
+        else if ($goodId == -1 && $carId!=-1) {
+            $errorGoodArray = array();
+            $tmpGoodArray=array();
+            $tmpGoodArray["id"]="-3";
+            $tmpGoodArray["preview"]="0";
+            $tmpGoodArray["good_id"]="0";
+            $tmpGoodArray["good_desc"]="0";
+            $tmpGoodArray["voice"]="0";
+            $tmpGoodArray["price_time"]="0";
+            $tmpGoodArray["price"]="0";
+            $tmpGoodArray["suitable_car"]="0";
+            $tmpGoodArray["thumbnails"]="0";
+            $tmpGoodArray["made_by"]="0";
+            $tmpGoodArray["company"]="0";
+            $tmpGoodArray["warranty"]="0";
+            $tmpGoodArray["is_stock"]="0";
+            $tmpGoodArray["status"]="0";
+            $tmpGoodArray["fileSize"]="0";
+            array_push($errorGoodArray,$tmpGoodArray);
+            echo json_encode($errorGoodArray);
+            die();
+        }
+        else if ($goodId == -1 && $carId==-1) {
+            $errorGoodAndCarArray = array();
+            $tmpArray=array();
+            $tmpArray["id"]="-4";
+            $tmpArray["preview"]="0";
+            $tmpArray["good_id"]="0";
+            $tmpArray["good_desc"]="0";
+            $tmpArray["voice"]="0";
+            $tmpArray["price_time"]="0";
+            $tmpArray["price"]="0";
+            $tmpArray["suitable_car"]="0";
+            $tmpArray["thumbnails"]="0";
+            $tmpArray["made_by"]="0";
+            $tmpArray["company"]="0";
+            $tmpArray["warranty"]="0";
+            $tmpArray["is_stock"]="0";
+            $tmpArray["status"]="0";
+            $tmpArray["fileSize"]="0";
+            array_push($errorGoodAndCarArray,$tmpArray);
+            echo json_encode($errorGoodAndCarArray);
+            die();
+        }
 
         if ($carId != 0) {
             $carFilter = " suitable_car like '%,$carId,%' or suitable_car like '$carId,%' or suitable_car like '%,$carId' or suitable_car =$carId ";
@@ -122,8 +186,6 @@ class Store
         $limit = " order by id desc limit 8 ";
         if ($lastId != 0) $limit = "and id<$lastId " . $limit;
         $q = "select * from store where  ( $carFilter ) and ( $goodFilter ) and ( $warrantyFilter ) and ( $countryFilter ) and ( $stockFilter ) ";
-
-
         //echo $q . $limit;
         $stmt = $conn->prepare($q . $limit);
         $stmt->execute();
@@ -140,8 +202,7 @@ class Store
         echo json_encode($goods); /* */
     }
 
-
-    function getRemoteFileSize($url, $formatSize = true, $useHead = true)
+    function getRemoteFilesize($url, $formatSize = true, $useHead = true)
     {
         if (false !== $useHead) {
             stream_context_set_default(array('http' => array('method' => 'HEAD')));
@@ -159,23 +220,19 @@ class Store
             return $clen; // return size in bytes
         }
 
-        $size = $clen;
+        $size = $clen;/*
         switch ($clen) {
             case $clen < 1024:
-                $size = $clen . ' B';
-                break;
+                $size = $clen .' B'; break;
             case $clen < 1048576:
-                $size = round($clen / 1024, 2) . ' KiB';
-                break;
+                $size = round($clen / 1024, 2) .' KiB'; break;
             case $clen < 1073741824:
-                $size = round($clen / 1048576, 2) . ' MiB';
-                break;
+                $size = round($clen / 1048576, 2) . ' MiB'; break;
             case $clen < 1099511627776:
-                $size = round($clen / 1073741824, 2) . ' GiB';
-                break;
-        }
+                $size = round($clen / 1073741824, 2) . ' GiB'; break;
+        }*/
 
-        return $clen; // return formatted size
+        return $size; // return formatted size
     }
 
     public function getGoodsByCarAndGoodName()
@@ -289,7 +346,7 @@ class Store
         $conn = MyPDO::getInstance();
         $search = app::get("search");
 
-        $q = "select * from store where name like '%$search%' order by name asc ";
+        $q = "select * from goods where name like '%$search%' order by name asc ";
 
 
         /* if($search="*") $q = "select * from cars";*/
