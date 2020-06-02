@@ -4,13 +4,15 @@ class UploadedFiles
 {
     public function upload()
     {
+        // http://drkamal3.com/Mechanic/index.php?route=upload&entrance_id=1&q_text=jjj&car_id=2&title_id=4
 
         //must check file extension and file size
         // $entrance_id,$q_text,$carId,$q_image_url1,$q_image_url2,$q_image_url3
         $entrance_id = app::get("entrance_id");
         $q_text = app::get("q_text");
-        $car_name = app::get("car_name");
-        $carId = app::getIdByCar($car_name) == -1 ? 1 : app::getIdByCar($car_name);
+        $carId = app::get("car_id");
+        $titleId = app::get("title_id");
+        //$carId = app::getIdByCar($car_name) == -1 ? 1 : app::getIdByCar($car_name);
         //var_dump($_FILES);
 
         $conn = MyPDO::getInstance();
@@ -45,11 +47,22 @@ class UploadedFiles
 
 
             //$q = "INSERT INTO `questions` ( `q_entrance_id`, `q_text`, `carId`, `q_image_url1`, `q_image_url2`, `q_image_url3`) VALUES ( $entrance_id, $q_text, $carId, $path0, $path1, $path2)";
-            $q = "INSERT INTO `questions` ( `q_entrance_id`, `q_text`, `carId`, `q_image_url1`, `q_image_url2`, `q_image_url3`) VALUES ( $entrance_id,   '$q_text', $carId,      '$path0', ' $path1', ' $path2')";
+
+            //do not add `` for numbers in query
+            $q = "INSERT INTO `questions` ( `q_entrance_id`, `q_text`, `carId`, `q_image_url1`, `q_image_url2`, `q_image_url3` , `q_title`) VALUES ( $entrance_id,   '$q_text', $carId,      '$path0', ' $path1', ' $path2' , $titleId)";
             echo $q;
             $stmt2 = $conn->prepare($q);
             $stmt2->execute();
-            echo "saved";
+            $lastId = $conn->lastInsertId();
+
+            $q3 = "INSERT INTO `seen_question` (`id`, `q_id`, `entrance_id`) VALUES (NULL,   $lastId, $entrance_id)";
+            $stmt3 = $conn->prepare($q3);
+            $stmt3->execute();
+
+            $q4 = "INSERT INTO `count_question` (`id`, `q_id`, `seen_count`) VALUES (NULL,  $lastId, '0')";
+            $stmt4 = $conn->prepare($q4);
+            $stmt4->execute();
+
             /*  echo "success";*/
         }
     }
@@ -116,11 +129,10 @@ class UploadedFiles
         } else $path3 = "";
 
 
-
-       $q = "INSERT INTO `users`
+        $q = "INSERT INTO `users`
   ( `entrance_id` , `job_ids`,`address`,`name`,`store_image_1`,`store_image_2`,`store_image_3`,`mechanic_image`,`store_name`,`phone_number` ,`about`,`x_location` ,`y_location`) VALUES
   ( '$m_entrance_id', '$job_ids','$address','$name','$path0'        ,'$path1'       ,'$path2'       ,'$path3'          ,'$store_name','$phone_number','$about','$x_location','$y_location')";
-       // echo $q;
+        // echo $q;
         $stmt2 = $conn->prepare($q);
         $stmt2->execute();
         echo "saved";

@@ -41,13 +41,54 @@ class QandA
         echo json_encode($array);
     }
 
+    public function questionMy( $entrance_id)
+    {
+        //http://drkamal3.com/Mechanic/index.php?route=questionMy&entrance_id=1
+
+
+
+        $conn = MyPDO::getInstance();
+        $q = "SELECT * FROM `questions` where entrance_id=:entrance_id";
+        $stmt = $conn->prepare($q);
+
+        $stmt->bindParam("entrance_id", $entrance_id);
+        $stmt->execute();
+        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    public function getQuestions()
+    {
+        $conn = MyPDO::getInstance();
+        $lastId = app::get("lastId");
+        $carId = $_REQUEST["carId"];
+        $titleId = $_REQUEST["titleId"];
+        $sortBy = $_REQUEST["sortBy"];
+        $showMyQuestion = $_REQUEST["showMyQuestion"];
+        $entrance_id = app::get("entrance_id");
+
+        if ($carId != 0) {
+            $carFilter = " carId  =$carId ";
+        } else {
+            $carFilter = "  carId like '%' ";
+        }
+        if ($titleId != 0) {
+            $titleFilter = " q_title  = $titleId ";
+        } else {
+            $titleFilter = "  q_title like '%' ";
+        }
+
+        if ($showMyQuestion != 0) {
+            $this->questionMy($entrance_id);
+            die();
+        }
+
+    }
+
 
     public function questionAdd($entrance_id, $q_text, $carId, $q_image_url1, $q_image_url2, $q_image_url3)
     {
         //http://drkamal3.com/Mechanic/index.php?route=questionAdd&q_text=a&entrance_id=1&car=c
 
-
-        echo "BB";
 
         $conn = MyPDO::getInstance();
         $q = "SELECT q_id FROM `questions` where q_text= :q_text and q_entrance_id = :entrance_id";
@@ -122,7 +163,6 @@ class QandA
         $stmt->execute();
 
         if ($stmt->fetch()) {
-
             $q = "DELETE  FROM `q_favorites` where q_id=:q_id and entrance_id=:entrance_id";
             $stmt = $conn->prepare($q);
             $stmt->bindParam("q_id", $q_id);
@@ -130,7 +170,6 @@ class QandA
             $stmt->execute();
             echo "removed";
         } else {
-
             $q = "insert into `q_favorites` (entrance_id, q_id) values (:entrance_id,:q_id)";
             $stmt = $conn->prepare($q);
             $stmt->bindParam("q_id", $q_id);
@@ -143,21 +182,6 @@ class QandA
     }
 
 
-    public function questionMy()
-    {
-        //http://drkamal3.com/Mechanic/index.php?route=questionMy&entrance_id=1
-
-        $entrance_id = app::get("entrance_id");
-
-
-        $conn = MyPDO::getInstance();
-        $q = "SELECT * FROM `questions` where entrance_id=:entrance_id";
-        $stmt = $conn->prepare($q);
-
-        $stmt->bindParam("entrance_id", $entrance_id);
-        $stmt->execute();
-        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
-    }
 
     public function questionChangeState()
     {
@@ -230,55 +254,38 @@ class QandA
     }
 
     public function calculate($url, $formatSize = true, $useHead = true)
-    {
+    {/*
+        print_r(DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'IR'));
+        date_default_timezone_set('UTC');*/
+        /*
+                $date = new DateTime('now');
+                echo 'UTC:     '.$date->format('Y-m-d H:i:s')."\n";*/
+
+
+        try {
+            $date = new DateTime('now', new DateTimeZone('Asia/tehran'));
+            echo 'tehran: ' . $date->format('Y-m-d H:i:s') . "\n";
+        } catch (Exception $e) {
+        }
+
+
         /* echo "$a and $b";*/
-/*        $conn = MyPDO::getInstance();
-        $q = "SELECT id FROM `goods` WHERE 1";
-        $stmt = $conn->prepare($q);
-        $stmt->execute();
-        $aa = array();
-        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            array_push($aa, $result['id']);
-        }
+        /*        $conn = MyPDO::getInstance();
+                $q = "SELECT id FROM `goods` WHERE 1";
+                $stmt = $conn->prepare($q);
+                $stmt->execute();
+                $aa = array();
+                while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    array_push($aa, $result['id']);
+                }
 
-        foreach ($aa as $k => $v) {
-            $i=" کارخانه شماره ".($v+1);
-            echo $i."&&";
-            $q2 = "update  store set company='$i '  where id = '$v'";
-            $stmt2 = $conn->prepare($q2);
-            $stmt2->execute();
-        }*/
-
-        if (false !== $useHead) {
-            stream_context_set_default(array('http' => array('method' => 'HEAD')));
-        }
-        $head = array_change_key_case(get_headers($url, 1));
-        // content-length of download (in bytes), read from Content-Length: field
-        $clen = isset($head['content-length']) ? $head['content-length'] : 0;
-
-        // cannot retrieve file size, return "-1"
-        if (!$clen) {
-            return -1;
-        }
-
-        if (!$formatSize) {
-            return $clen; // return size in bytes
-        }
-
-        $size = $clen;
-        switch ($clen) {
-            case $clen < 1024:
-                $size = $clen .' B'; break;
-            case $clen < 1048576:
-                $size = round($clen / 1024, 2) .' KiB'; break;
-            case $clen < 1073741824:
-                $size = round($clen / 1048576, 2) . ' MiB'; break;
-            case $clen < 1099511627776:
-                $size = round($clen / 1073741824, 2) . ' GiB'; break;
-        }
-
-        echo $clen; // return formatted size
-
+                foreach ($aa as $k => $v) {
+                    $i=" کارخانه شماره ".($v+1);
+                    echo $i."&&";
+                    $q2 = "update  store set company='$i '  where id = '$v'";
+                    $stmt2 = $conn->prepare($q2);
+                    $stmt2->execute();
+                }*/
     }
 
     public function searchTitle()

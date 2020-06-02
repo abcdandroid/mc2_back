@@ -18,6 +18,7 @@ include "classes/Store.php";
 include "classes/Ads.php";
 include "classes/UploadedFiles.php";
 
+
 /*
  * todo
  *
@@ -146,6 +147,10 @@ switch ($route) {
         $a = new Store();
         $a->getAllCountries();
         break;
+    case "addToSold":
+        $a = new Store();
+        $a->addToSold();
+        break;
     case "getAds":
         $a = new Ads();
         $a->getAds();
@@ -153,6 +158,10 @@ switch ($route) {
     case "sendImageAddress":
         $a = new QandA();
         $a->sendImageAddress();
+        break;
+    case "searchTitle":
+        $a = new QandA();
+        $a->searchTitle();
         break;
     case "upload":
         $a = new UploadedFiles();

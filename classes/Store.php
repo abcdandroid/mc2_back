@@ -87,69 +87,67 @@ class Store
         $countryId = $_REQUEST["countryId"];
         $isStock = $_REQUEST["isStock"];
 
-        if ($carId == -1 && $goodId!=-1) {
+        if ($carId == -1 && $goodId != -1) {
             $errorCarArray = array();
-            $tmpCarArray=array();
-            $tmpCarArray["id"]="-2";
-            $tmpCarArray["preview"]="0";
-            $tmpCarArray["good_id"]="0";
-            $tmpCarArray["good_desc"]="0";
-            $tmpCarArray["voice"]="0";
-            $tmpCarArray["price_time"]="0";
-            $tmpCarArray["price"]="0";
-            $tmpCarArray["suitable_car"]="0";
-            $tmpCarArray["thumbnails"]="0";
-            $tmpCarArray["made_by"]="0";
-            $tmpCarArray["company"]="0";
-            $tmpCarArray["warranty"]="0";
-            $tmpCarArray["is_stock"]="0";
-            $tmpCarArray["status"]="0";
-            $tmpCarArray["fileSize"]="0";
-            array_push($errorCarArray,$tmpCarArray);
+            $tmpCarArray = array();
+            $tmpCarArray["id"] = "-2";
+            $tmpCarArray["preview"] = "0";
+            $tmpCarArray["good_id"] = "0";
+            $tmpCarArray["good_desc"] = "0";
+            $tmpCarArray["voice"] = "0";
+            $tmpCarArray["price_time"] = "0";
+            $tmpCarArray["price"] = "0";
+            $tmpCarArray["suitable_car"] = "0";
+            $tmpCarArray["thumbnails"] = "0";
+            $tmpCarArray["made_by"] = "0";
+            $tmpCarArray["company"] = "0";
+            $tmpCarArray["warranty"] = "0";
+            $tmpCarArray["is_stock"] = "0";
+            $tmpCarArray["status"] = "0";
+            $tmpCarArray["fileSize"] = "0";
+            array_push($errorCarArray, $tmpCarArray);
             echo json_encode($errorCarArray);
             die();
-        }
-        else if ($goodId == -1 && $carId!=-1) {
+        } else if ($goodId == -1 && $carId != -1) {
             $errorGoodArray = array();
-            $tmpGoodArray=array();
-            $tmpGoodArray["id"]="-3";
-            $tmpGoodArray["preview"]="0";
-            $tmpGoodArray["good_id"]="0";
-            $tmpGoodArray["good_desc"]="0";
-            $tmpGoodArray["voice"]="0";
-            $tmpGoodArray["price_time"]="0";
-            $tmpGoodArray["price"]="0";
-            $tmpGoodArray["suitable_car"]="0";
-            $tmpGoodArray["thumbnails"]="0";
-            $tmpGoodArray["made_by"]="0";
-            $tmpGoodArray["company"]="0";
-            $tmpGoodArray["warranty"]="0";
-            $tmpGoodArray["is_stock"]="0";
-            $tmpGoodArray["status"]="0";
-            $tmpGoodArray["fileSize"]="0";
-            array_push($errorGoodArray,$tmpGoodArray);
+            $tmpGoodArray = array();
+            $tmpGoodArray["id"] = "-3";
+            $tmpGoodArray["preview"] = "0";
+            $tmpGoodArray["good_id"] = "0";
+            $tmpGoodArray["good_desc"] = "0";
+            $tmpGoodArray["voice"] = "0";
+            $tmpGoodArray["price_time"] = "0";
+            $tmpGoodArray["price"] = "0";
+            $tmpGoodArray["suitable_car"] = "0";
+            $tmpGoodArray["thumbnails"] = "0";
+            $tmpGoodArray["made_by"] = "0";
+            $tmpGoodArray["company"] = "0";
+            $tmpGoodArray["warranty"] = "0";
+            $tmpGoodArray["is_stock"] = "0";
+            $tmpGoodArray["status"] = "0";
+            $tmpGoodArray["fileSize"] = "0";
+            array_push($errorGoodArray, $tmpGoodArray);
             echo json_encode($errorGoodArray);
             die();
-        }
-        else if ($goodId == -1 && $carId==-1) {
+        } else if ($goodId == -1 && $carId == -1) {
             $errorGoodAndCarArray = array();
-            $tmpArray=array();
-            $tmpArray["id"]="-4";
-            $tmpArray["preview"]="0";
-            $tmpArray["good_id"]="0";
-            $tmpArray["good_desc"]="0";
-            $tmpArray["voice"]="0";
-            $tmpArray["price_time"]="0";
-            $tmpArray["price"]="0";
-            $tmpArray["suitable_car"]="0";
-            $tmpArray["thumbnails"]="0";
-            $tmpArray["made_by"]="0";
-            $tmpArray["company"]="0";
-            $tmpArray["warranty"]="0";
-            $tmpArray["is_stock"]="0";
-            $tmpArray["status"]="0";
-            $tmpArray["fileSize"]="0";
-            array_push($errorGoodAndCarArray,$tmpArray);
+            $tmpArray = array();
+            $tmpArray["id"] = "-4";
+            $tmpArray["preview"] = "0";
+            $tmpArray["good_id"] = "0";
+            $tmpArray["good_desc"] = "0";
+            $tmpArray["voice"] = "0";
+            $tmpArray["price_time"] = "0";
+            $tmpArray["price"] = "0";
+            $tmpArray["suitable_car"] = "0";
+            $tmpArray["thumbnails"] = "0";
+            $tmpArray["made_by"] = "0";
+            $tmpArray["company"] = "0";
+            $tmpArray["warranty"] = "0";
+            $tmpArray["is_stock"] = "0";
+            $tmpArray["status"] = "0";
+            $tmpArray["fileSize"] = "0";
+            array_push($errorGoodAndCarArray, $tmpArray);
             echo json_encode($errorGoodAndCarArray);
             die();
         }
@@ -436,5 +434,23 @@ class Store
         echo json_encode(array("countries" => $this->getAllCountries(), "warrantys" => $this->getAllWarranties()));
     }
 
+    public function addToSold()
+    {
+        header('Content-Type: application/json');
+        $conn = MyPDO::getInstance();
+        $userId = app::get("userId");
+        $goodId = app::get("goodId");
+
+        $date = new DateTime('now', new DateTimeZone('Asia/tehran'));
+        $currentTime = $date->format('Y-m-d H:i:s');
+
+        $q = "INSERT INTO `sold` (`id`, `user_id`, `good_id`, `date`) VALUES (NULL, :userId, :goodId, :currentTime);";
+        $stmt = $conn->prepare($q);
+        $stmt->bindParam("userId",$userId);
+        $stmt->bindParam("goodId",$goodId);
+        $stmt->bindParam("currentTime",$currentTime);
+        $stmt->execute();
+
+    }
 
 }
