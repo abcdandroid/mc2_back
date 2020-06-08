@@ -41,6 +41,90 @@ class app
 
     }
 
+    public static function getJobsById($ids)
+    {
+        $conn = MyPDO::getInstance();
+        $array = explode(",", $ids);
+        $jobList = array();
+
+        for ($i = 1; $i <= sizeof($array); $i++) {
+            $q = "select * from jobs where id=:id";
+            $stmt = $conn->prepare($q);
+            $stmt->bindParam("id", $array[$i - 1]);
+            $stmt->execute();
+            $job = $stmt->fetch(PDO::FETCH_ASSOC)["name"];//15+12+3.5+2
+            array_push($jobList, $job);
+        }
+
+        if (!in_array(false, $jobList)) {
+            return json_encode($jobList);
+        } else {
+            $array1 = array();
+            array_push($array1, array("id" => 0, "name" => "all jobs"));
+            return json_encode($array1);
+        }
+
+    }
+
+    public static function getMoviesBySize($movieUrl)
+    {
+        $array = explode(",", $movieUrl);
+        $movieList = array();
+
+        for ($i = 1; $i <= sizeof($array); $i++) {
+            $moveSize = app::getRemoteFileSize($array[$i - 1]);
+            $result = array("movie_url" => $array[$i - 1], "movie_size" => $moveSize);
+            array_push($movieList, $result);
+        }
+
+        if (!in_array(false, $movieList)) {
+            return ($movieList);
+        } else {
+            $array1 = array();
+            array_push($array1, array("movie_url" => "bad url", "movie_size" => -1));
+            return ($array1);
+        }
+
+    }
+
+
+    public static function getRemoteFileSize($url, $formatSize = true, $useHead = true)
+    {
+        if (false !== $useHead) {
+            stream_context_set_default(array('http' => array('method' => 'HEAD')));
+        }
+        $head = array_change_key_case(get_headers($url, 1));
+        // content-length of download (in bytes), read from Content-Length: field
+        $clen = isset($head['content-length']) ? $head['content-length'] : 0;
+
+        // cannot retrieve file size, return "-1"
+        if (!$clen) {
+            return -1;
+        }
+
+        if (!$formatSize) {
+            return $clen; // return size in bytes
+        }
+
+        $size = $clen;
+        switch ($clen) {
+            case $clen < 1024:
+                $size = $clen . ' B';
+                break;
+            case $clen < 1048576:
+                $size = round($clen / 1024, 2) . ' KiB';
+                break;
+            case $clen < 1073741824:
+                $size = round($clen / 1048576, 2) . ' MiB';
+                break;
+            case $clen < 1099511627776:
+                $size = round($clen / 1073741824, 2) . ' GiB';
+                break;
+        }
+
+        return $clen; // return formatted size
+    }
+
     public static function getIdByCar($carName)
     {
         $conn = MyPDO::getInstance();
@@ -71,6 +155,25 @@ class app
 
         if ($good) {
             return ($good);
+        } else {
+            $array1 = array();
+            array_push($array1, array("id" => -1, "name" => "not found"));
+            return json_encode($array1);
+        }
+    }
+
+    public static function getRegionById($id)
+    {
+        $conn = MyPDO::getInstance();
+
+        $q = "select * from regions where id=:id";
+        $stmt = $conn->prepare($q);
+        $stmt->bindParam("id", $id);
+        $stmt->execute();
+        $Region = $stmt->fetch(PDO::FETCH_ASSOC)["name"];
+
+        if ($Region) {
+            return ($Region);
         } else {
             $array1 = array();
             array_push($array1, array("id" => -1, "name" => "not found"));

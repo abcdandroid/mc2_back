@@ -59,10 +59,9 @@ class UploadedFiles
             $stmt3 = $conn->prepare($q3);
             $stmt3->execute();
 
-            $q4 = "INSERT INTO `count_question` (`id`, `q_id`, `seen_count`) VALUES (NULL,  $lastId, '0')";
+            $q4 = "INSERT INTO `count_question` (`id`, `q_id`, `seen_count`) VALUES (NULL,  $lastId, '1')";
             $stmt4 = $conn->prepare($q4);
             $stmt4->execute();
-
             /*  echo "success";*/
         }
     }

@@ -17,6 +17,7 @@ include "classes/QandA.php";
 include "classes/Store.php";
 include "classes/Ads.php";
 include "classes/UploadedFiles.php";
+include "classes/Mechanic.php";
 
 
 /*
@@ -94,6 +95,10 @@ switch ($route) {
     case "searchCar":
         $a = new QandA();
         $a->searchCar();
+        break;
+    case "getQuestions":
+        $a = new QandA();
+        $a->getQuestions();
         break;
     case "addToCounterQuestion":
         $a = new QandA();
@@ -174,6 +179,18 @@ switch ($route) {
     case "addNewMechanic":
         $a = new UploadedFiles();
         $a->addNewMechanic();
+        break;
+    case "getMechanics":
+        $a = new Mechanic();
+        $a->getMechanics();
+        break;
+    case "searchJob":
+        $a = new Mechanic();
+        $a->searchJob();
+        break;
+    case "searchRegion":
+        $a = new Mechanic();
+        $a->searchRegion();
         break;
     case "test":
         $a = new QandA();
