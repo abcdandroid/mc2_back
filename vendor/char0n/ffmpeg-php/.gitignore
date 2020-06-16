@@ -1,0 +1,11 @@
+.svn
+.buildpath
+.project
+.settings
+*.swp
+/junit.xml
+/docs/*
+/composer.phar
+/composer.lock
+/vendor
+.idea

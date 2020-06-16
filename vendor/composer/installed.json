@@ -1,0 +1,59 @@
+[
+    {
+        "name": "char0n/ffmpeg-php",
+        "version": "3.0.0",
+        "version_normalized": "3.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/char0n/ffmpeg-php.git",
+            "reference": "14bee9a19911a426d4662ad4fade1a8781746159"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/char0n/ffmpeg-php/zipball/14bee9a19911a426d4662ad4fade1a8781746159",
+            "reference": "14bee9a19911a426d4662ad4fade1a8781746159",
+            "shasum": ""
+        },
+        "require": {
+            "ext-gd": "*",
+            "ext-mbstring": "*",
+            "ext-xml": "*",
+            "php": ">=7"
+        },
+        "require-dev": {
+            "graphp/graphviz": "v0.2.1",
+            "iautomation/filesystem-helper": "1.0.0",
+            "phpdocumentor/phpdocumentor": "v2.9.0",
+            "phpunit/phpunit": "6.1.x-dev",
+            "squizlabs/php_codesniffer": "3.0.0RC4"
+        },
+        "time": "2018-10-23T16:45:34+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Char0n\\FFMpegPHP\\": "src",
+                "Char0n\\FFMpegPHP\\Tests\\": "tests"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "authors": [
+            {
+                "name": "char0n (Vladimír Gorej)",
+                "email": "vladimir.gorej@gmail.com",
+                "homepage": "https://www.linkedin.com/in/vladimirgorej/",
+                "role": "Software engineer"
+            }
+        ],
+        "description": "PHP wrapper for FFmpeg application",
+        "homepage": "https://github.com/char0n/ffmpeg-php",
+        "keywords": [
+            "audio",
+            "ffmpeg",
+            "video"
+        ]
+    }
+]
