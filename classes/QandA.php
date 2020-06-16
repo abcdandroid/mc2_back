@@ -148,7 +148,7 @@ class QandA
             if ($lastId != 0) $limit = " and questions.q_id<$lastId " . $limit;
 
         } else {/*$orderFilter = " seen_count ";*/
-            $offset=$offset*5;
+            $offset = $offset * 5;
             $limit = " order by count_question.seen_count desc  limit $offset,5 ";
             //if ($lastSeenCount != 0) $limit = " and (count_question.seen_count<=$lastSeenCount and questions.q_id<$lastId) " . $limit;
         }
@@ -162,17 +162,17 @@ class QandA
 
         /*echo $mainQ;*/
 
-                $stmt = $conn->prepare($mainQ);
-                $stmt->execute();
-                $array = array();
-                while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $result["answerCount"] = $this->getAnswerCountForQuestionId($result["q_id"]);
-                    $result["carName"] = json_decode(app::getCarsById($result["carId"]))[0]->{"name"};
-                    array_push($array, $result);
-                }
-                $array=array("msg"=>$mainQ,"result"=>$array);
+        $stmt = $conn->prepare($mainQ);
+        $stmt->execute();
+        $array = array();
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $result["answerCount"] = $this->getAnswerCountForQuestionId($result["q_id"]);
+            $result["carName"] = json_decode(app::getCarsById($result["carId"]))[0]->{"name"};
+            array_push($array, $result);
+        }
+        $array = array("msg" => $mainQ, "result" => $array);
 
-                echo json_encode($array);
+        echo json_encode($array);
     }
 
 
@@ -399,6 +399,40 @@ class QandA
                     $stmt2->execute();
                 }*/
     }
+
+    public function getAnswers()
+    {
+        $conn = MyPDO::getInstance();
+        $q_id = app::get("q_id");
+        $offset = app::get("offset");
+        $offset = $offset * 5;
+        if ($q_id != 0)
+            $qFilter = " ans.q_id= $q_id ";
+        else $qFilter = " ans.q_id like '%' ";
+        $q = "SELECT ans.*,users.movies,users.job_ids,users.region_id,users.address,users.name,
+              users.store_image_1,users.store_image_2,users.store_image_3,users.mechanic_image,users.store_name,users.phone_number,users.about,users.x_location,users.y_location,users.score
+              FROM (SELECT answers.*,entrance.type FROM `answers` LEFT JOIN entrance ON answers.a_entrance_id=entrance.id) AS ans LEFT JOIN users on ans.a_entrance_id=users.entrance_id 
+              WHERE $qFilter ORDER BY ans.type desc , ans.a_id asc limit $offset,5";
+
+
+        /* if($search="*") $q = "select * from cars";*/
+
+        $stmt = $conn->prepare($q);
+        $stmt->execute();
+        $answers = array();
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $result["fileSize"] = app::getRemoteFileSize("http://drkamal3.com/Mechanic/" . $result["a_voice_url"]);
+            array_push($answers, $result);
+        }
+
+        if (sizeof($answers) == 0)
+            echo json_encode(array("msg" => "zeroSize", "answers" => $answers));
+        else
+            echo json_encode(array("msg" => "$q", "answers" => $answers));
+    }
+
+
+    //SELECT * FROM (SELECT answers.*,entrance.type FROM `answers` LEFT JOIN entrance ON answers.a_entrance_id=entrance.id) AS ans LEFT JOIN users on ans.a_entrance_id=users.entrance_id WHERE ans.q_id=62
 
 
 }

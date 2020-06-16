@@ -124,7 +124,7 @@ class Mechanic
         }
 
         header('Content-Type: application/json');
-        echo json_encode($mechanics); /* */
+        echo json_encode(array("msg"=>$q,"mechanic"=>$mechanics)); /* */
     }
 
 

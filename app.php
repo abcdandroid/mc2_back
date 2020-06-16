@@ -57,11 +57,11 @@ class app
         }
 
         if (!in_array(false, $jobList)) {
-            return json_encode($jobList);
+            return ($jobList);
         } else {
             $array1 = array();
             array_push($array1, array("id" => 0, "name" => "all jobs"));
-            return json_encode($array1);
+            return ($array1);
         }
 
     }

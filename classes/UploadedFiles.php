@@ -73,6 +73,7 @@ class UploadedFiles
         $conn = MyPDO::getInstance();
         $a_entrance_id = app::get("a_entrance_id");
         $q_id = app::get("q_id");
+        $a_text = app::get("a_text");
         echo "A";
         var_dump($_FILES);
         if (isset($_FILES["recordedAnswer"])) {
@@ -80,7 +81,7 @@ class UploadedFiles
             $path = "answerAudios/" . $fileName;
             if (move_uploaded_file($_FILES["recordedAnswer"]["tmp_name"], $path)) {
                 echo "audio saved";
-                $q = "INSERT INTO `answers` (`a_id`, `a_entrance_id`, `q_id`, `a_text`, `a_voice_url`, `a_status`) VALUES (NULL, '$a_entrance_id', '$q_id', '', '$path', '0');";
+                $q = "INSERT INTO `answers` (`a_id`, `a_entrance_id`, `q_id`, `a_text`, `a_voice_url`, `a_status`) VALUES (NULL, '$a_entrance_id', '$q_id', '$a_text', '$path', '0');";
                 echo $q;
                 $stmt2 = $conn->prepare($q);
                 $stmt2->execute();
@@ -94,8 +95,8 @@ class UploadedFiles
     public function addNewMechanic()
     {
         $conn = MyPDO::getInstance();
-        $m_entrance_id = app::get("m_entrance_id");
         $job_ids = app::get("job_ids");
+        $region_id = app::get("region_id");
         $address = app::get("address");
         $name = app::get("name");
         $store_name = app::get("store_name");
@@ -103,6 +104,7 @@ class UploadedFiles
         $about = app::get("about");
         $x_location = app::get("x_location");
         $y_location = app::get("y_location");
+
 
         //must check file extension and file size
 
@@ -128,14 +130,25 @@ class UploadedFiles
         } else $path3 = "";
 
 
-        $q = "INSERT INTO `users`
-  ( `entrance_id` , `job_ids`,`address`,`name`,`store_image_1`,`store_image_2`,`store_image_3`,`mechanic_image`,`store_name`,`phone_number` ,`about`,`x_location` ,`y_location`) VALUES
-  ( '$m_entrance_id', '$job_ids','$address','$name','$path0'        ,'$path1'       ,'$path2'       ,'$path3'          ,'$store_name','$phone_number','$about','$x_location','$y_location')";
-        // echo $q;
-        $stmt2 = $conn->prepare($q);
+        $q0 = "insert into entrance (mobile,type) values (:mobile,1)";
+        $stmt0 = $conn->prepare($q0);
+        $stmt0->bindParam("mobile", $phone_number);
+        $stmt0->execute();
+
+        $q1 = "select max(entrance.id) as li from  entrance";
+        $stmt1 = $conn->prepare($q1);
+        $stmt1->execute();
+        $m_entrance_id = $stmt1->fetch(PDO::FETCH_ASSOC)["li"];
+
+
+        $q2 = "INSERT INTO `users`
+          ( `entrance_id`  , `job_ids`,`region_id`,`address`,`name`,`store_image_1`,`store_image_2`,`store_image_3`,`mechanic_image`,`store_name`,`phone_number` ,`about`,`x_location` ,`y_location`) VALUES
+          ( '$m_entrance_id' ,'$job_ids','$region_id','$address','$name','$path0'        ,'$path1'       ,'$path2'       ,'$path3'          ,'$store_name','$phone_number','$about','$x_location','$y_location')";
+        //echo $q2;
+        $stmt2 = $conn->prepare($q2);
         $stmt2->execute();
-        echo "saved";
-        //echo "success";
+        echo json_encode(array("state" => "saved", "entrance_id"=>$m_entrance_id)); /**/
+
     }
 
 

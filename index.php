@@ -104,6 +104,10 @@ switch ($route) {
         $a = new QandA();
         $a->addToCounterQuestion();
         break;
+    case "getAnswers":
+        $a = new QandA();
+        $a->getAnswers();
+        break;
     case "searchGood":
         $a = new Store();
         $a->searchGood();
