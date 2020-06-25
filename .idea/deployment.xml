@@ -5,7 +5,7 @@
       <paths name="mechanic api">
         <serverdata>
           <mappings>
-            <mapping deploy="/Mechanic" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>

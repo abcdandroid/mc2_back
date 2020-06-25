@@ -32,6 +32,8 @@ class Store
     public function getStore2()
     {
         $conn = MyPDO::getInstance();
+
+
         $lastId = app::get("lastId");
         $carName = $_REQUEST["carName"];
         $goodName = $_REQUEST["goodName"];
@@ -59,12 +61,13 @@ class Store
             }
         } elseif ($carName != "null" and $goodName == "null" and $search == "null") {
             $carId = app::getIdByCar($carName);
-            $q = "select * from store where ((suitable_car like '%,$carId,%' or suitable_car like '$carId,%' or suitable_car like '%,$carId' or suitable_car =$carId))   ";
+            $q = "select * from store where ((suitable_car like '%,$carId,%' or suitable_car like '$carId,%' or suitable_car like '%,$carId' or suitable_car =$carId))   " . $limit;
         } elseif ($carName == "null" and $goodName != "null" and $search == "null") {
-            $q = "select * from store where ( name like '%$goodName%' ) ";
+            $q = "select * from store where ( name like '%$goodName%' ) " . $limit;
         }
+
         //echo $q . $limit;
-        $stmt = $conn->prepare($q . $limit);
+        $stmt = $conn->prepare($q);
         $stmt->execute();
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $result["fileSize"] = $this->getRemoteFileSize($result["voice"]);
@@ -76,116 +79,124 @@ class Store
         echo json_encode($goods);
     }
 
-    public function getStore3()
+    public function getStore3($mp_id = -1)
     {
         //http://drkamal3.com/Mechanic/index.php?route=getStore3&lastId=0&carId=0&goodId=0&warrantyId=0&countryId=0&isStock=0#
         $conn = MyPDO::getInstance();
-        $lastId = app::get("lastId");
-        $carId = $_REQUEST["carId"];
-        $goodId = $_REQUEST["goodId"];
-        $warrantyId = $_REQUEST["warrantyId"];
-        $countryId = $_REQUEST["countryId"];
-        $isStock = $_REQUEST["isStock"];
 
-        if ($carId == -1 && $goodId != -1) {
-            $errorCarArray = array();
-            $tmpCarArray = array();
-            $tmpCarArray["id"] = "-2";
-            $tmpCarArray["preview"] = "0";
-            $tmpCarArray["good_id"] = "0";
-            $tmpCarArray["good_desc"] = "0";
-            $tmpCarArray["voice"] = "0";
-            $tmpCarArray["price_time"] = "0";
-            $tmpCarArray["price"] = "0";
-            $tmpCarArray["suitable_car"] = "0";
-            $tmpCarArray["thumbnails"] = "0";
-            $tmpCarArray["made_by"] = "0";
-            $tmpCarArray["company"] = "0";
-            $tmpCarArray["warranty"] = "0";
-            $tmpCarArray["is_stock"] = "0";
-            $tmpCarArray["status"] = "0";
-            $tmpCarArray["fileSize"] = "0";
-            array_push($errorCarArray, $tmpCarArray);
-            echo json_encode($errorCarArray);
-            die();
-        } else if ($goodId == -1 && $carId != -1) {
-            $errorGoodArray = array();
-            $tmpGoodArray = array();
-            $tmpGoodArray["id"] = "-3";
-            $tmpGoodArray["preview"] = "0";
-            $tmpGoodArray["good_id"] = "0";
-            $tmpGoodArray["good_desc"] = "0";
-            $tmpGoodArray["voice"] = "0";
-            $tmpGoodArray["price_time"] = "0";
-            $tmpGoodArray["price"] = "0";
-            $tmpGoodArray["suitable_car"] = "0";
-            $tmpGoodArray["thumbnails"] = "0";
-            $tmpGoodArray["made_by"] = "0";
-            $tmpGoodArray["company"] = "0";
-            $tmpGoodArray["warranty"] = "0";
-            $tmpGoodArray["is_stock"] = "0";
-            $tmpGoodArray["status"] = "0";
-            $tmpGoodArray["fileSize"] = "0";
-            array_push($errorGoodArray, $tmpGoodArray);
-            echo json_encode($errorGoodArray);
-            die();
-        } else if ($goodId == -1 && $carId == -1) {
-            $errorGoodAndCarArray = array();
-            $tmpArray = array();
-            $tmpArray["id"] = "-4";
-            $tmpArray["preview"] = "0";
-            $tmpArray["good_id"] = "0";
-            $tmpArray["good_desc"] = "0";
-            $tmpArray["voice"] = "0";
-            $tmpArray["price_time"] = "0";
-            $tmpArray["price"] = "0";
-            $tmpArray["suitable_car"] = "0";
-            $tmpArray["thumbnails"] = "0";
-            $tmpArray["made_by"] = "0";
-            $tmpArray["company"] = "0";
-            $tmpArray["warranty"] = "0";
-            $tmpArray["is_stock"] = "0";
-            $tmpArray["status"] = "0";
-            $tmpArray["fileSize"] = "0";
-            array_push($errorGoodAndCarArray, $tmpArray);
-            echo json_encode($errorGoodAndCarArray);
-            die();
-        }
-
-        if ($carId != 0) {
-            $carFilter = " suitable_car like '%,$carId,%' or suitable_car like '$carId,%' or suitable_car like '%,$carId' or suitable_car =$carId ";
-        } else {
-            $carFilter = "  suitable_car like '%' ";
-        }
-        if ($goodId != 0) {
-            $goodFilter = " good_id = '$goodId' ";
-        } else {
-            $goodFilter = " good_id like '%' ";
-        }
-        if ($warrantyId != 0) {
-            $warrantyFilter = " warranty = '$warrantyId' ";
+        // $mp_id = $_REQUEST["mp_id"];
+        if ($mp_id != -1) {
+            $q = "select * from store where id= $mp_id";
         } else {
 
-            $warrantyFilter = " warranty like '%' ";
-        }
+            //$lastId = app::get("lastId");
+            $lastId = $_REQUEST["lastId"];
+            $carId = $_REQUEST["carId"];
+            $goodId = $_REQUEST["goodId"];
+            $warrantyId = $_REQUEST["warrantyId"];
+            $countryId = $_REQUEST["countryId"];
+            $isStock = $_REQUEST["isStock"];
 
-        if ($countryId != 0) {
-            $countryFilter = " made_by = '$countryId' ";
-        } else {
-            $countryFilter = " made_by like '%' ";
-        }
-        if ($isStock != 0) {
-            $stockFilter = " is_stock = '$isStock' ";
-        } else {
-            $stockFilter = " is_stock like '%' ";
-        }
+            if ($carId == -1 && $goodId != -1) {
+                $errorCarArray = array();
+                $tmpCarArray = array();
+                $tmpCarArray["id"] = "-2";
+                $tmpCarArray["preview"] = "0";
+                $tmpCarArray["good_id"] = "0";
+                $tmpCarArray["good_desc"] = "0";
+                $tmpCarArray["voice"] = "0";
+                $tmpCarArray["price_time"] = "0";
+                $tmpCarArray["price"] = "0";
+                $tmpCarArray["suitable_car"] = "0";
+                $tmpCarArray["thumbnails"] = "0";
+                $tmpCarArray["made_by"] = "0";
+                $tmpCarArray["company"] = "0";
+                $tmpCarArray["warranty"] = "0";
+                $tmpCarArray["is_stock"] = "0";
+                $tmpCarArray["status"] = "0";
+                $tmpCarArray["fileSize"] = "0";
+                array_push($errorCarArray, $tmpCarArray);
+                echo json_encode($errorCarArray);
+                die();
+            } else if ($goodId == -1 && $carId != -1) {
+                $errorGoodArray = array();
+                $tmpGoodArray = array();
+                $tmpGoodArray["id"] = "-3";
+                $tmpGoodArray["preview"] = "0";
+                $tmpGoodArray["good_id"] = "0";
+                $tmpGoodArray["good_desc"] = "0";
+                $tmpGoodArray["voice"] = "0";
+                $tmpGoodArray["price_time"] = "0";
+                $tmpGoodArray["price"] = "0";
+                $tmpGoodArray["suitable_car"] = "0";
+                $tmpGoodArray["thumbnails"] = "0";
+                $tmpGoodArray["made_by"] = "0";
+                $tmpGoodArray["company"] = "0";
+                $tmpGoodArray["warranty"] = "0";
+                $tmpGoodArray["is_stock"] = "0";
+                $tmpGoodArray["status"] = "0";
+                $tmpGoodArray["fileSize"] = "0";
+                array_push($errorGoodArray, $tmpGoodArray);
+                echo json_encode($errorGoodArray);
+                die();
+            } else if ($goodId == -1 && $carId == -1) {
+                $errorGoodAndCarArray = array();
+                $tmpArray = array();
+                $tmpArray["id"] = "-4";
+                $tmpArray["preview"] = "0";
+                $tmpArray["good_id"] = "0";
+                $tmpArray["good_desc"] = "0";
+                $tmpArray["voice"] = "0";
+                $tmpArray["price_time"] = "0";
+                $tmpArray["price"] = "0";
+                $tmpArray["suitable_car"] = "0";
+                $tmpArray["thumbnails"] = "0";
+                $tmpArray["made_by"] = "0";
+                $tmpArray["company"] = "0";
+                $tmpArray["warranty"] = "0";
+                $tmpArray["is_stock"] = "0";
+                $tmpArray["status"] = "0";
+                $tmpArray["fileSize"] = "0";
+                array_push($errorGoodAndCarArray, $tmpArray);
+                echo json_encode($errorGoodAndCarArray);
+                die();
+            }
 
+            if ($carId != 0) {
+                $carFilter = " suitable_car like '%,$carId,%' or suitable_car like '$carId,%' or suitable_car like '%,$carId' or suitable_car =$carId ";
+            } else {
+                $carFilter = "  suitable_car like '%' ";
+            }
+            if ($goodId != 0) {
+                $goodFilter = " good_id = '$goodId' ";
+            } else {
+                $goodFilter = " good_id like '%' ";
+            }
+            if ($warrantyId != 0) {
+                $warrantyFilter = " warranty = '$warrantyId' ";
+            } else {
+
+                $warrantyFilter = " warranty like '%' ";
+            }
+
+            if ($countryId != 0) {
+                $countryFilter = " made_by = '$countryId' ";
+            } else {
+                $countryFilter = " made_by like '%' ";
+            }
+            if ($isStock != 0) {
+                $stockFilter = " is_stock = '$isStock' ";
+            } else {
+                $stockFilter = " is_stock like '%' ";
+            }
+
+            $limit = " order by id desc limit 8 ";
+            if ($lastId != 0) $limit = "and id<$lastId " . $limit;
+            $q = "select * from store where  ( $carFilter ) and ( $goodFilter ) and ( $warrantyFilter ) and ( $countryFilter ) and ( $stockFilter ) " . $limit;
+            //echo $q . $limit;
+        }
         $goods = array();
-        $limit = " order by id desc limit 8 ";
-        if ($lastId != 0) $limit = "and id<$lastId " . $limit;
-        $q = "select * from store where  ( $carFilter ) and ( $goodFilter ) and ( $warrantyFilter ) and ( $countryFilter ) and ( $stockFilter ) ";
-        //echo $q . $limit;
-        $stmt = $conn->prepare($q . $limit);
+        $stmt = $conn->prepare($q);
         $stmt->execute();
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $result["fileSize"] = $this->getRemoteFileSize($result["voice"]);
@@ -195,9 +206,11 @@ class Store
             $result["made_by"] = app::getCountryById($result["made_by"]);
             array_push($goods, $result);
         }
-
-        header('Content-Type: application/json');
-        echo json_encode($goods); /* */
+        if ($mp_id == -1) {
+            header('Content-Type: application/json');
+            echo json_encode($goods); /* */
+        } else
+            return $goods;
     }
 
     function getRemoteFilesize($url, $formatSize = true, $useHead = true)
@@ -339,16 +352,17 @@ class Store
 
     }
 
-    public function searchGood()
+    public function searchGood($mp_id = -1)
     {
         $conn = MyPDO::getInstance();
-        $search = app::get("search");
+        if ($mp_id != -1) {
+            $q = "select * from goods where id = $mp_id  ";
+        } else {
+            $search = app::get("search");
 
-        $q = "select * from goods where name like '%$search%' order by name asc ";
+            $q = "select * from goods where name like '%$search%' order by name asc ";
 
-
-        /* if($search="*") $q = "select * from cars";*/
-
+        }
         $stmt = $conn->prepare($q);
         $stmt->execute();
         $goods = array();
@@ -356,7 +370,11 @@ class Store
             $arrayCarName = array("id" => $result["id"], "name" => $result["name"]);
             array_push($goods, $arrayCarName);
         }
-        echo json_encode($goods);
+        if ($mp_id == -1) {
+            header('Content-Type: application/json');
+            echo json_encode($goods);
+        } else
+            return $goods;
     }
 
     public function searchAutoCompleteGoodOrCar1()
@@ -446,9 +464,9 @@ class Store
 
         $q = "INSERT INTO `sold` (`id`, `user_id`, `good_id`, `date`) VALUES (NULL, :userId, :goodId, :currentTime);";
         $stmt = $conn->prepare($q);
-        $stmt->bindParam("userId",$userId);
-        $stmt->bindParam("goodId",$goodId);
-        $stmt->bindParam("currentTime",$currentTime);
+        $stmt->bindParam("userId", $userId);
+        $stmt->bindParam("goodId", $goodId);
+        $stmt->bindParam("currentTime", $currentTime);
         $stmt->execute();
 
     }

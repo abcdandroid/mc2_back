@@ -18,6 +18,11 @@ class app
 
     public static function getCarsById($ids)
     {
+        if ($ids == 0) {
+            $array2 = array();
+            array_push($array2, array("id" => 0, "name" => "همه ماشین ها"));
+            return json_encode($array2);
+        }
         $conn = MyPDO::getInstance();
         $array = explode(",", $ids);
         $carList = array();
@@ -43,6 +48,11 @@ class app
 
     public static function getJobsById($ids)
     {
+        if ($ids == 0) {
+            $array2 = array();
+            array_push($array2, array("id" => 0, "name" => "همه تخصص ها"));
+            return json_encode($array2);
+        }
         $conn = MyPDO::getInstance();
         $array = explode(",", $ids);
         $jobList = array();
@@ -87,6 +97,57 @@ class app
 
     }
 
+    public static function getMoviesBySizAndDesc($id)
+
+    {
+        include_once './../../vendor/autoload.php';
+        $conn = MyPDO::getInstance();
+        $q = "select  * from users_movie where user_id= :id ";
+        $stmt = $conn->prepare($q);
+        $stmt->bindParam(":id", $id);
+        $stmt->execute();
+        $mechanic_movie = array();
+        // echo "aaaaaaddd".getcwd()."aaaaaaddd";
+        $ffmpeg = FFMpeg\FFMpeg::create(array(
+            'ffmpeg.binaries' => getcwd() . '/' . 'ffmpeg',
+            'ffprobe.binaries' => getcwd() . '/' . 'ffprobe',
+            'timeout' => 3600, // The timeout for the underlying process
+            'ffmpeg.threads' => 12,   // The number of threads that FFMpeg should use
+        ));
+
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+
+            $movieName = substr(basename($result["movie_url"]), 0, strlen(basename($result["movie_url"])) - 4) . ".jpg";
+            $video = $ffmpeg->open($result["movie_url"]);
+            /**/
+            $imagePath = 'Movie mechanic  previews/' . $movieName;
+            $video
+                ->frame(FFMpeg\Coordinate\TimeCode::fromSeconds(3))
+                ->save($imagePath, false, false);
+            $result["movie_preview"] = $imagePath;
+            $result["movie_size"] = app::getRemoteFileSize($result["movie_url"]);
+            array_push($mechanic_movie, $result);
+        }
+
+        if (!in_array(false, $mechanic_movie)) {
+            return ($mechanic_movie);
+        } else {
+            $array1 = array();
+            array_push($array1, array("movie_url" => "bad url", "movie_size" => -1));
+            return ($array1);
+        }
+
+    }
+
+    static function get_string_between($string, $start, $end)
+    {
+        $string = ' ' . $string;
+        $ini = strpos($string, $start);
+        if ($ini == 0) return '';
+        $ini += strlen($start);
+        $len = strpos($string, $end, $ini) - $ini;
+        return substr($string, $ini, $len);
+    }
 
     public static function getRemoteFileSize($url, $formatSize = true, $useHead = true)
     {
@@ -145,6 +206,8 @@ class app
 
     public static function getGoodById($id)
     {
+
+
         $conn = MyPDO::getInstance();
 
         $q = "select * from goods where id=:id";
@@ -164,6 +227,11 @@ class app
 
     public static function getRegionById($id)
     {
+        if ($id == 0) {
+            $array2 = array();
+            array_push($array2, array("id" => 0, "name" => "همه مناطقا"));
+            return json_encode($array2);
+        }
         $conn = MyPDO::getInstance();
 
         $q = "select * from regions where id=:id";
@@ -183,6 +251,11 @@ class app
 
     public static function getWarrantyById($id)
     {
+        if ($id == 0) {
+            $array2 = array();
+            array_push($array2, array("id" => 0, "name" => "همه گارانتی ها"));
+            return json_encode($array2);
+        }
         $conn = MyPDO::getInstance();
 
         $q = "select * from warrantys where id=:id";
@@ -202,6 +275,11 @@ class app
 
     public static function getCountryById($id)
     {
+        if ($id == 0) {
+            $array2 = array();
+            array_push($array2, array("id" => 0, "name" => "همه کشور ها"));
+            return json_encode($array2);
+        }
         $conn = MyPDO::getInstance();
 
         $q = "select * from countries where id=:id";
@@ -212,6 +290,30 @@ class app
 
         if ($country) {
             return ($country);
+        } else {
+            $array1 = array();
+            array_push($array1, array("id" => -1, "name" => "not found"));
+            return json_encode($array1);
+        }
+    }
+
+    public static function getTitleById($id)
+    {
+        if ($id == 0) {
+            $array2 = array();
+            array_push($array2, array("id" => 0, "name" => "همه موضوع ها"));
+            return json_encode($array2);
+        }
+        $conn = MyPDO::getInstance();
+
+        $q = "select * from titles where id=:id";
+        $stmt = $conn->prepare($q);
+        $stmt->bindParam("id", $id);
+        $stmt->execute();
+        $titles = $stmt->fetch(PDO::FETCH_ASSOC)["name"];
+
+        if ($titles) {
+            return ($titles);
         } else {
             $array1 = array();
             array_push($array1, array("id" => -1, "name" => "not found"));

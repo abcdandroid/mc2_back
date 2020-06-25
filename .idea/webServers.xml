@@ -3,7 +3,7 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="56f99424-8901-4ea0-8008-780a77ce103a" name="mechanic api" url="http://ftp.drkamal3.com">
-        <fileTransfer host="ftp.drkamal3.com" port="21" rootFolder="/httpdocs">
+        <fileTransfer host="ftp.drkamal3.com" port="21" rootFolder="/httpdocs/Mechanic">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>

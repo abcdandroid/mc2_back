@@ -5,6 +5,10 @@
  * Date: 02/15/2020
  * Time: 17:48
  */
+/*
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);*/
 
 include "routes.php";
 include "Response.php";
@@ -18,6 +22,7 @@ include "classes/Store.php";
 include "classes/Ads.php";
 include "classes/UploadedFiles.php";
 include "classes/Mechanic.php";
+include "classes/MainPage.php";
 
 
 /*
@@ -195,6 +200,10 @@ switch ($route) {
     case "searchRegion":
         $a = new Mechanic();
         $a->searchRegion();
+        break;
+    case "getMainPageData":
+        $a = new MainPage();
+        $a->getMainPageData();
         break;
     case "test":
         $a = new QandA();

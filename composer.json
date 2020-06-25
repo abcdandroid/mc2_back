@@ -10,6 +10,15 @@
     }
   ],
   "require": {
-    "char0n/ffmpeg-php": "3.0.0"
+    "char0n/ffmpeg-php": "^3.0.0",
+    "monolog/monolog": "^2.1",
+    "rmccue/requests": "^1.7",
+    "rinvex/countries": "^6.1",
+    "imagine/imagine": "^1.2",
+    "markrogoyski/math-php": "1.*",
+    "php-ffmpeg/php-ffmpeg": "^0.16.0",
+    "alchemy/binary-driver": "^5.2",
+    "php-ffmpeg/extras": "^0.3.1",
+    "ext-json": "*"
   }
 }

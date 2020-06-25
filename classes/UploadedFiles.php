@@ -74,21 +74,27 @@ class UploadedFiles
         $a_entrance_id = app::get("a_entrance_id");
         $q_id = app::get("q_id");
         $a_text = app::get("a_text");
-        echo "A";
-        var_dump($_FILES);
+        if (isset($_FILES["recordedAnswer"])) {
+            $fileName0 = basename($_FILES["recordedAnswer"]["name"]);
+            $path0 = "answerAudios/" . $fileName0;
+            if (move_uploaded_file($_FILES["recordedAnswer"]["tmp_name"], $path0)) echo "0 saved"; else echo "0 not saved";
+        } else $path0 = "";
+        $q = "INSERT INTO `answers` (`a_id`, `a_entrance_id`, `q_id`, `a_text`, `a_voice_url`, `a_status`) VALUES (NULL, '$a_entrance_id', '$q_id', '$a_text', '$path0', '0');";
+        echo $q;
+        $stmt2 = $conn->prepare($q);
+        $stmt2->execute();
+        echo "audio saved";
+
+        /*
         if (isset($_FILES["recordedAnswer"])) {
             $fileName = basename($_FILES["recordedAnswer"]["name"]);
             $path = "answerAudios/" . $fileName;
             if (move_uploaded_file($_FILES["recordedAnswer"]["tmp_name"], $path)) {
                 echo "audio saved";
-                $q = "INSERT INTO `answers` (`a_id`, `a_entrance_id`, `q_id`, `a_text`, `a_voice_url`, `a_status`) VALUES (NULL, '$a_entrance_id', '$q_id', '$a_text', '$path', '0');";
-                echo $q;
-                $stmt2 = $conn->prepare($q);
-                $stmt2->execute();
-                echo "audio saved";
+
 
             } else echo "audio not saved";
-        } else echo "file not received";
+        } else echo "file not received";*/
     }
 
 
@@ -147,7 +153,7 @@ class UploadedFiles
         //echo $q2;
         $stmt2 = $conn->prepare($q2);
         $stmt2->execute();
-        echo json_encode(array("state" => "saved", "entrance_id"=>$m_entrance_id)); /**/
+        echo json_encode(array("state" => "saved", "entrance_id" => $m_entrance_id)); /**/
 
     }
 

@@ -193,9 +193,8 @@ class JobManager
         $stmt->execute();
         $medias = array();
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $result["fileSize"]= $this->getRemoteFileSize($result["url"]) ;
+            $result["fileSize"] = $this->getRemoteFileSize($result["url"]);
             array_push($medias, $result);
-
         }
 
         header('Content-Type: application/json');
@@ -203,17 +202,18 @@ class JobManager
     }
 
 
-    public function getFilteredData(){
+    public function getFilteredData()
+    {
         $conn = MyPDO::getInstance();
         $lastId = app::get("lastId");
-        $search=app::get("search");
+        $search = app::get("search");
 
-        echo "a";
 
-        if ($lastId == 0){
+
+        if ($lastId == 0) {
             $q = "select * from admin where media_desc like %$search% order by id desc ";
-        echo $q;}
-        else
+            echo $q;
+        } else
             $q = "select * from admin where id<$lastId and media_desc like %$search% order by id desc ";
 
 
@@ -222,7 +222,7 @@ class JobManager
         $medias = array();
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
-            $result["fileSize"]= $this->getRemoteFileSize($result["url"]) ;
+            $result["fileSize"] = $this->getRemoteFileSize($result["url"]);
             array_push($medias, $result);
 
         }
@@ -250,13 +250,17 @@ class JobManager
         $size = $clen;
         switch ($clen) {
             case $clen < 1024:
-                $size = $clen .' B'; break;
+                $size = $clen . ' B';
+                break;
             case $clen < 1048576:
-                $size = round($clen / 1024, 2) .' KiB'; break;
+                $size = round($clen / 1024, 2) . ' KiB';
+                break;
             case $clen < 1073741824:
-                $size = round($clen / 1048576, 2) . ' MiB'; break;
+                $size = round($clen / 1048576, 2) . ' MiB';
+                break;
             case $clen < 1099511627776:
-                $size = round($clen / 1073741824, 2) . ' GiB'; break;
+                $size = round($clen / 1073741824, 2) . ' GiB';
+                break;
         }
 
         return $clen; // return formatted size
