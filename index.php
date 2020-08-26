@@ -10,6 +10,9 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);*/
 
+/*ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);*/
 include "routes.php";
 include "Response.php";
 include "app.php";
@@ -45,6 +48,10 @@ switch ($route) {
     case sms:
         new SmsManager(false);
         break;
+    case "getEtcData":
+        $a = new MainPage();
+        $a->getEtcData();
+        break;
     case "getAllJobs":
         $a = new JobManager();
         $a->getAllJobs();
@@ -52,6 +59,14 @@ switch ($route) {
     case "getMediasByJobId":
         $a = new JobManager();
         $a->getMediasByJobId();
+        break;
+    case "aparatApiTest":
+        $a = new Medias();
+        $a->aparatApiTest();
+        break;
+    case "getAdminMediasFromAparatApi":
+        $a = new Medias();
+        $a->getAdminMediasFromAparatApi();
         break;
     case "getMediasByLocationId":
         $a = new JobManager();
@@ -66,7 +81,7 @@ switch ($route) {
         $a->getMedias();
         break;
     case "getAdminMedias":
-        $a = new JobManager();
+        $a = new Medias();
         $a->getAdminMedias();
         break;
     case "getAdminMediasByFilter":
@@ -205,9 +220,21 @@ switch ($route) {
         $a = new MainPage();
         $a->getMainPageData();
         break;
+    case "getMechanicMovies":
+        $a = new Mechanic();
+        $a->getMechanicMovies();
+        break;
     case "test":
         $a = new QandA();
         $a->calculate("https://dl.songsara.net/RaMt!N/99/1-Farvardin/Chris%20Snelling%20-%20Gentle%20Moments%20%282020%29%20SONGSARA.NET/03%20Paper%20Planes.mp3");
+        break;
+    case "addTestMechanic":
+        $a = new UploadedFiles();
+        $a->addTestMechanic();
+        break;
+    case "fileSize":
+        $a = new Medias();
+        $a->curl_get_file_size("https://as7.cdn.asset.aparat.com/aparat-video/ab3f273159ec4f059a1bd67b39ea3f6423814589-360p.mp4");
         break;
     default :
         echo "not valid route";

@@ -49,37 +49,30 @@ class SmsManager
         echo $code;
         //send sms
 
-        /*
-         $username = '09215142663';
-         $password = '8991';
-         $to = $mobile;
-         $from = '500040001426';
+
+        $username = '09215142663';
+        $password = '8991';
+        $to = $mobile;
+        $from = '500040001426';
 
 
-         ini_set("soap.wsdl_cache_enabled", "0");
-         $sms_client = new SoapClient('http://api.payamak-panel.com/post/send.asmx?wsdl',
-             array('encoding' => 'UTF-8'));
-         $param["username"] = "09215142663";
-         $param["password"] = "8991";
-         $param["from"] = "50004000142663";
-         $param["to"] = ["$mobile"];
-         $param["text"] = "کد فعال سازی شما $code می باشد";
-         $param["isflash"] = false;
-         $data = $sms_client->SendSimpleSMS($param)->SendSimpleSMSResult;
-        */
-
-
-        //var_dump($data);/**/
-
-
-        //echo json_encode(array(message => sendSmsOk, code => $smsRest));
-
+        ini_set("soap.wsdl_cache_enabled", "0");
+        $sms_client = new SoapClient('http://melipayamak.ir/post/send.asmx?wsdl',
+            array('encoding' => 'UTF-8'));
+        $param["username"] = "09215142663";
+        $param["password"] = "8991";
+        $param["from"] = "50004000142663";
+        $param["to"] = ["$mobile"];
+        $param["text"] = "کد فعال سازی شما $code می باشد";
+        $param["isflash"] = false;
+        $data = $sms_client->SendSimpleSMS($param)->SendSimpleSMSResult;
     }
 
 
     public function verifyCode()
     {
         //https://drkamal3.com/Mechanic/index.php?route=sms&action=verifyCode&mobile=091232177&code=1622
+
         $conn = MyPDO::getInstance();
         $code = app::get(code);
         $mobile = app::get(mobile);
@@ -105,10 +98,21 @@ class SmsManager
                 $stmt->execute();
                 $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                if ($stmt->rowCount() == 0) {
+               if ($stmt->rowCount() == 0) {
                     echo(registrationStep1);
                 } else {
-                    echo json_encode(array("entranceId" => $result["id"], "type" => $result["type"]));
+                    $type = $result["type"];
+                    $enranceId = $result["id"];
+                     if ($type == 1) {
+                        $q5 = "SELECT users.id FROM `users` where  entrance_id= $enranceId";
+                        $stmt5 = $conn->prepare($q5);
+                        $stmt5->execute();
+                        $userId = $stmt5->fetch(PDO::FETCH_ASSOC)["id"];
+                        $mechanic = new Mechanic();
+                        $mechanicInfo = $mechanic->getMechanics($userId)[0];
+                        echo json_encode(array("entranceId" => $enranceId, "type" => $type, "mobile" => $result["mobile"], "mechanicInfo" => $mechanicInfo));/**/
+                    } else
+                        echo json_encode(array("entranceId" => $enranceId, "type" => $type, "mobile" => $result["mobile"]));
                 }
 
             } else {
@@ -117,7 +121,7 @@ class SmsManager
             $q = "delete FROM sms where mobile=:mobile";
             $stmt = $conn->prepare($q);
             $stmt->bindParam("mobile", $mobile);
-            $stmt->execute();
+            $stmt->execute();/**/
         } else {
             echo errorCode;
         }
@@ -138,7 +142,6 @@ class SmsManager
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($stmt->rowCount() == 0) {
-
             $q = "insert into entrance (mobile,type) values (:mobile,:type)";
             $stmt = $conn->prepare($q);
             $stmt->bindParam("mobile", $mobile);
@@ -146,8 +149,6 @@ class SmsManager
             $stmt->execute();
             $id = $conn->lastInsertId();
             echo json_encode(array(message => registrationStep2, registerId => $id));
-
-
         } else {
             echo "duplicate user";
         }

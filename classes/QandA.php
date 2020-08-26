@@ -92,7 +92,8 @@ class QandA
                 $tmpCarArray["answerCount"] = "0";
                 $tmpCarArray["carName"] = "0";
                 array_push($errorCarArray, $tmpCarArray);
-                echo json_encode($errorCarArray);
+                $result = array("msg" => "car error", "result" => $errorCarArray);
+                echo json_encode($result);
                 die();
             } else if ($titleId == -1 && $carId != -1) {
                 $errorTitleArray = array();
@@ -110,7 +111,8 @@ class QandA
                 $tmpTitleArray["answerCount"] = "0";
                 $tmpTitleArray["carName"] = "0";
                 array_push($errorTitleArray, $tmpTitleArray);
-                echo json_encode($errorTitleArray);
+                $result = array("msg" => "title error", "result" => $errorTitleArray);
+                echo json_encode($result);
                 die();
             } else if ($titleId == -1 && $carId == -1) {
                 $errorTitleAndCarArray = array();
@@ -128,7 +130,8 @@ class QandA
                 $tmpArray["answerCount"] = "0";
                 $tmpArray["carName"] = "0";
                 array_push($errorTitleAndCarArray, $tmpArray);
-                echo json_encode($errorTitleAndCarArray);
+                $result = array("msg" => "both error", "result" => $errorTitleAndCarArray);
+                echo json_encode($result);
                 die();
             }
 
@@ -165,9 +168,8 @@ class QandA
                       questions.q_image_url3,questions.q_status,questions.q_title,count_question.seen_count
                       FROM questions LEFT JOIN count_question ON questions.q_id=count_question.q_id ";
 
-            $mainQ = $mainQ . " where " . $carFilter . " and " . $titleFilter . " and " . $myQuestionFilter . $limit;
+            $mainQ = $mainQ . " where " . $carFilter . " and " . $titleFilter . " and " . $myQuestionFilter . "  and   questions.q_status=1" . $limit;
         }
-        /*echo $mainQ;*/
 
         $stmt = $conn->prepare($mainQ);
         $stmt->execute();
@@ -175,10 +177,11 @@ class QandA
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $result["answerCount"] = $this->getAnswerCountForQuestionId($result["q_id"]);
             $result["carName"] = json_decode(app::getCarsById($result["carId"]))[0]->{"name"};
-            $result['q_title']=app::getCountryById($result['q_title']);
+            $result['q_title'] = app::getTitleById($result['q_title']);
             array_push($array, $result);
         }
-        $nArray = array("msg" => $mainQ, "result" => $array);
+//msg => 0 : namayesh peygham ke in soal movjood nis   msg =>1 : namayesh in peygham ke shoma soali naporsidi
+        $nArray = array("msg" => $showMyQuestion == 0 ? "0" : "1", "result" => $array);
 
 
         if ($mp_id == -1) {
@@ -366,7 +369,10 @@ class QandA
     public function getAnswerCountForQuestionId($id)
     {
         $conn = MyPDO::getInstance();
-        $q = "SELECT COUNT(*)  as nums from answers where q_id =$id";
+        $q =/* "SELECT COUNT(*)  as nums from answers where q_id =$id and a_status=1 ";*/
+        "SELECT COUNT(*) as nums FROM (SELECT ans.*,users.*
+              FROM (SELECT answers.*,entrance.type FROM `answers` LEFT JOIN entrance ON answers.a_entrance_id=entrance.id) AS ans LEFT JOIN users on ans.a_entrance_id=users.entrance_id 
+              WHERE ans.q_id= $id and (users.is_signed=1 or users.is_signed is null ) and ( ans.a_status = 1 )  ORDER BY ans.type desc , ans.a_id asc) AS allAnswers";
         $stmt = $conn->prepare($q);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC)["nums"];
@@ -440,10 +446,14 @@ class QandA
         if ($q_id != 0)
             $qFilter = " ans.q_id= $q_id ";
         else $qFilter = " ans.q_id like '%' ";
+        $q = "SELECT ans.*,users.*
+              FROM (SELECT answers.*,entrance.type FROM `answers` LEFT JOIN entrance ON answers.a_entrance_id=entrance.id) AS ans LEFT JOIN users on ans.a_entrance_id=users.entrance_id 
+              WHERE $qFilter and (users.is_signed=1 or users.is_signed is null ) and ( ans.a_status = 1 )  ORDER BY ans.type desc , ans.a_id asc limit $offset,5";
+        /*
         $q = "SELECT ans.*,users.movies,users.job_ids,users.region_id,users.address,users.name,
               users.store_image_1,users.store_image_2,users.store_image_3,users.mechanic_image,users.store_name,users.phone_number,users.about,users.x_location,users.y_location,users.score
-              FROM (SELECT answers.*,entrance.type FROM `answers` LEFT JOIN entrance ON answers.a_entrance_id=entrance.id) AS ans LEFT JOIN users on ans.a_entrance_id=users.entrance_id 
-              WHERE $qFilter ORDER BY ans.type desc , ans.a_id asc limit $offset,5";
+              FROM (SELECT answers.*,entrance.type FROM `answers` LEFT JOIN entrance ON answers.a_entrance_id=entrance.id) AS ans LEFT JOIN users on ans.a_entrance_id=users.entrance_id
+              WHERE $qFilter ORDER BY ans.type desc , ans.a_id asc limit $offset,5";*/
 
 
         /* if($search="*") $q = "select * from cars";*/
@@ -452,8 +462,42 @@ class QandA
         $stmt->execute();
         $answers = array();
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $result["fileSize"] = app::getRemoteFileSize("http://drkamal3.com/Mechanic/" . $result["a_voice_url"]);
-            array_push($answers, $result);
+            $result["job"] = app::getJobsById($result["job"]);
+            $result["region"] = app::getRegionById($result["region"]);
+            $result["movies"] = app::getMoviesBySizAndDesc($result["id"], $result["movie_offset"]);
+            $result["fileSize"] = app::getRemoteFileSize2("http://drkamal3.com/Mechanic/" . $result["a_voice_url"]);
+
+            $mechanic = array();
+            $mechanic["id"] = $result["id"];
+            $mechanic["entrance_id"] = $result["entrance_id"];
+            $mechanic["movies"] = $result["movies"];
+            $mechanic["job"] = $result["job"];
+            $mechanic["region"] = $result["region"];
+            $mechanic["address"] = $result["address"];
+            $mechanic["name"] = $result["name"];
+            $mechanic["store_image_1"] = $result["store_image_1"];
+            $mechanic["store_image_2"] = $result["store_image_2"];
+            $mechanic["store_image_3"] = $result["store_image_3"];
+            $mechanic["mechanic_image"] = $result["mechanic_image"];
+            $mechanic["store_name"] = $result["store_name"];
+            $mechanic["phone_number"] = $result["phone_number"];
+            $mechanic["about"] = $result["about"];
+            $mechanic["x_location"] = $result["x_location"];
+            $mechanic["y_location"] = $result["y_location"];
+            $mechanic["score"] = $result["score"];
+            $mechanic["score_state"] = $result["score_state"];
+            $mechanic["is_signed"] = $result["is_signed"];
+
+            $answer = array();
+            $answer["a_id"] = $result["a_id"];
+            $answer["a_entrance_id"] = $result["a_entrance_id"];
+            $answer["q_id"] = $result["q_id"];
+            $answer["a_text"] = $result["a_text"];
+            $answer["a_voice_url"] = $result["a_voice_url"];
+            $answer["a_status"] = $result["a_status"];
+            $answer["fileSize"] = $result["fileSize"];
+
+            array_push($answers, array("mechanic" => $mechanic, "answer" => $answer, "type" => $result["type"]));
         }
 
         if (sizeof($answers) == 0)

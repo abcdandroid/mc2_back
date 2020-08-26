@@ -11,7 +11,7 @@ class Mechanic
         $conn = MyPDO::getInstance();
         //$mp_id = $_REQUEST["mp_id"];
         if ($mp_id != -1) {
-            $q = "SELECT users.* FROM `users` where    id= $mp_id";
+            $q = "SELECT users.* FROM `users` where id= $mp_id";
         } else {
             $offset = app::get("offset");
             $jobId = $_REQUEST["jobId"];
@@ -25,9 +25,9 @@ class Mechanic
                 $tmpJobArray = array();
                 $tmpJobArray["id"] = "-2";
                 $tmpJobArray["entrance_id"] = "0";
-                $tmpJobArray["movies"] = "0";
-                $tmpJobArray["job_ids"] = "0";
-                $tmpJobArray["region_id"] = "0";
+                $tmpJobArray["movies"] = array();
+                $tmpJobArray["job"] = array();
+                $tmpJobArray["region"] =array("id"=>-10,"name"=>"");
                 $tmpJobArray["address"] = "0";
                 $tmpJobArray["name"] = "0";
                 $tmpJobArray["store_image_1"] = "0";
@@ -40,17 +40,19 @@ class Mechanic
                 $tmpJobArray["x_location"] = "0";
                 $tmpJobArray["y_location"] = "0";
                 $tmpJobArray["score"] = "0";
+                $tmpJobArray["score_state"] = "0";
+                $tmpJobArray["is_signed"] = "0";
                 array_push($errorJobArray, $tmpJobArray);
-                echo json_encode($errorJobArray);
+                echo json_encode(array("msg" => "errorJob", "mechanic" => $errorJobArray));
                 die();
             } else if ($jobId != -1 && $regionId == -1) {
                 $errorRegionArray = array();
                 $tmpRegionArray = array();
                 $tmpRegionArray["id"] = "-3";
                 $tmpRegionArray["entrance_id"] = "0";
-                $tmpRegionArray["movies"] = "0";
-                $tmpRegionArray["job_ids"] = "0";
-                $tmpRegionArray["region_id"] = "0";
+                $tmpRegionArray["movies"] = array();
+                $tmpRegionArray["job"] = array();
+                $tmpRegionArray["region"] = array("id"=>-10,"name"=>"");
                 $tmpRegionArray["address"] = "0";
                 $tmpRegionArray["name"] = "0";
                 $tmpRegionArray["store_image_1"] = "0";
@@ -63,17 +65,19 @@ class Mechanic
                 $tmpRegionArray["x_location"] = "0";
                 $tmpRegionArray["y_location"] = "0";
                 $tmpRegionArray["score"] = "0";
+                $tmpJobArray["score_state"] = "0";
+                $tmpJobArray["is_signed"] = "0";
                 array_push($errorRegionArray, $tmpRegionArray);
-                echo json_encode($errorRegionArray);
+                echo json_encode(array("msg" => "errorRegion", "mechanic" => $errorRegionArray));
                 die();
             } else if ($jobId == -1 && $regionId == -1) {
                 $errorRegionAndJobArray = array();
                 $tmpRegionAndJobArray = array();
                 $tmpRegionAndJobArray["id"] = "-4";
                 $tmpRegionAndJobArray["entrance_id"] = "0";
-                $tmpRegionAndJobArray["movies"] = "0";
-                $tmpRegionAndJobArray["job_ids"] = "0";
-                $tmpRegionAndJobArray["region_id"] = "0";
+                $tmpRegionAndJobArray["movies"] = array();
+                $tmpRegionAndJobArray["job"] = array();
+                $tmpRegionAndJobArray["region"] = array("id"=>-10,"name"=>"");
                 $tmpRegionAndJobArray["address"] = "0";
                 $tmpRegionAndJobArray["name"] = "0";
                 $tmpRegionAndJobArray["store_image_1"] = "0";
@@ -86,20 +90,22 @@ class Mechanic
                 $tmpRegionAndJobArray["x_location"] = "0";
                 $tmpRegionAndJobArray["y_location"] = "0";
                 $tmpRegionAndJobArray["score"] = "0";
+                $tmpJobArray["score_state"] = "0";
+                $tmpJobArray["is_signed"] = "0";
                 array_push($errorRegionAndJobArray, $tmpRegionAndJobArray);
-                echo json_encode($errorRegionAndJobArray);
+                echo json_encode(array("msg" => "errorBoth", "mechanic" => $errorRegionAndJobArray));
                 die();
             }
 
             if ($jobId != 0) {
-                $jobFilter = " job_ids like '%,$jobId,%' or job_ids like '$jobId,%' or job_ids like '%,$jobId' or job_ids =$jobId ";
+                $jobFilter = " job like '%,$jobId,%' or job like '$jobId,%' or job like '%,$jobId' or job =$jobId ";
             } else {
-                $jobFilter = "  job_ids like '%' ";
+                $jobFilter = "  job  like '%' ";
             }
             if ($regionId != 0) {
-                $regionFilter = " region_id = '$regionId' ";
+                $regionFilter = " region  = '$regionId' ";
             } else {
-                $regionFilter = " region_id like '%' ";
+                $regionFilter = " region  like '%' ";
             }
 
 
@@ -114,18 +120,17 @@ class Mechanic
                 $limit = " ORDER BY pow((pow(users.x_location-$x,2)+pow(users.y_location-$y,2)),0.5) limit $offset,5 ";
             }
 
-            $q = "SELECT users.* FROM `users` where   ($jobFilter)  and  $regionFilter  $limit  ";
+            $q = "SELECT users.* FROM `users` where   ($jobFilter)  and  $regionFilter and is_signed=1	 $limit ";
         }
         $mechanics = array();
         $stmt = $conn->prepare($q);
         $stmt->execute();
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $result["job_ids"] = app::getJobsById($result["job_ids"]);
-            $result["region_id"] = app::getRegionById($result["region_id"]);
-            $result["movies"] = app::getMoviesBySizAndDesc($result["id"]);
+            $result["job"] = app::getJobsById($result["job"]);
+            $result["region"] = app::getRegionById($result["region"]);
+            $result["movies"] = app::getMoviesBySizAndDesc($result["id"] );
             array_push($mechanics, $result);
-        }
-       header('Content-Type: application/json');
+        } 
         if ($mp_id == -1) {
             echo json_encode(array("msg" => $q, "mechanic" => $mechanics)); /* */
             return null;
@@ -136,6 +141,8 @@ class Mechanic
 
     public function searchJob($mp_id = -1)
     {
+        // http://drkamal3.com/Mechanic/index.php?route=searchJob&search=%D8%A2%D9%BE
+
         $conn = MyPDO::getInstance();
         if ($mp_id != -1) {
             $q = "select * from jobs where id = $mp_id  ";
@@ -183,5 +190,98 @@ class Mechanic
             echo json_encode($regions);
         } else
             return $regions;
+    }
+    function getMechanicMovies()
+    {
+        include_once './../../vendor/autoload.php';
+        $conn = MyPDO::getInstance();
+        $id = app::get("id");
+        $q = "select  * from users_movie where user_id= :id ";
+        $stmt = $conn->prepare($q);
+        $stmt->bindParam(":id", $id);
+        $stmt->execute();
+        $mechanic_movie = array();
+
+        $curl = curl_init();
+
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://www.aparat.com/etc/api/video/videohash/" . $result["movie_uid"],
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "GET",
+                CURLOPT_HTTPHEADER => array(
+                    "cache-control: no-cache"
+                ),
+            ));
+            $response = curl_exec($curl);
+            $response = json_decode($response, true); //because of true, it's in an array
+            $result["movie_preview"] = $response["video"]["big_poster"];
+          //  $result["movie_size"] = $response["video"]["size"];
+            array_push($mechanic_movie, $result);
+        }
+        curl_close($curl);
+
+        if (!in_array(false, $mechanic_movie)) {
+            //  return ($mechanic_movie);
+            echo json_encode($mechanic_movie);
+        } else {
+            $array1 = array();
+            array_push($array1, array("id" => "0", "user_id" => -1, "movie_size" => -1, "movie_url" => "", "movie_desc" => "", "movie_offset" => -1, "movie_preview" => ""));
+            //return ($array1);
+
+            echo json_encode($mechanic_movie);
+        }/**/
+    }
+
+    public function getMechanicMovies0()
+    {
+        include_once './../../vendor/autoload.php';
+        $conn = MyPDO::getInstance();
+        $id = app::get("id");
+        $q = "select  * from users_movie where user_id= :id ";
+        $stmt = $conn->prepare($q);
+        $stmt->bindParam(":id", $id);
+        $stmt->execute();
+        $mechanic_movie = array();
+        $ffmpeg = FFMpeg\FFMpeg::create(array(
+            'ffmpeg.binaries' => getcwd() . '/' . 'ffmpeg',
+            'ffprobe.binaries' => getcwd() . '/' . 'ffprobe',
+            'timeout' => 3600,
+            'ffmpeg.threads' => 12,
+        ));
+
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+
+            $movieName = substr(basename($result["movie_url"]), 0, strlen(basename($result["movie_url"])) - 4) . ".jpg";
+
+            $imagePath = 'Movie mechanic  previews/' . $movieName;
+            if (file_exists($imagePath)) {
+                $result["movie_preview"] = $imagePath;
+            } else {
+                $video = $ffmpeg->open($result["movie_url"]);
+                $video
+                    ->frame(FFMpeg\Coordinate\TimeCode::fromSeconds($result["movie_offset"]))
+                    ->save($imagePath, false, false);
+                $result["movie_preview"] = $imagePath;
+            }
+
+
+            $result["movie_size"] = app::getRemoteFileSize($result["movie_url"]);
+            array_push($mechanic_movie, $result);
+        }
+
+        if (!in_array(false, $mechanic_movie)) {
+          //  return ($mechanic_movie);
+            echo json_encode($mechanic_movie);
+        } else {
+            $array1 = array();
+            array_push($array1, array("id" => "0", "user_id" => -1, "movie_size" => -1, "movie_url" => "", "movie_desc" => "", "movie_offset" => -1, "movie_preview" => "" ));
+            //return ($array1);
+
+            echo json_encode($mechanic_movie);
+        }/**/
     }
 }
