@@ -190,7 +190,8 @@ class Store
                 $stockFilter = " is_stock like '%' ";
             }
 
-            $limit = " order by id desc limit 8 ";
+            $segmentCount=20;
+            $limit = " order by id desc limit $segmentCount ";
             if ($lastId != 0) $limit = "and id<$lastId " . $limit;
             $q = "select * from store where  ( $carFilter ) and ( $goodFilter ) and ( $warrantyFilter ) and ( $countryFilter ) and ( $stockFilter ) " . $limit;
             //echo $q . $limit;

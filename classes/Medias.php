@@ -59,9 +59,10 @@ class Medias
     {
         include_once './../../vendor/autoload.php';
         $conn = MyPDO::getInstance();
+        $segmentCount=20;
         $offset = app::get("offset");
-        $offset = $offset * 10;
-        $q = "SELECT * FROM `admin` limit $offset,10";
+        $offset = $offset * $segmentCount;
+        $q = "SELECT * FROM `admin` limit $offset,$segmentCount";
         $stmt = $conn->prepare($q);
         $stmt->execute();
         $mechanic_movie = array();
@@ -69,8 +70,6 @@ class Medias
         $curl = curl_init();
 
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-
-
             curl_setopt_array($curl, array(
                 CURLOPT_URL => "https://www.aparat.com/etc/api/video/videohash/" . $result["movie_uid"],
                 CURLOPT_RETURNTRANSFER => true,

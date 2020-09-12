@@ -108,16 +108,16 @@ class Mechanic
                 $regionFilter = " region  like '%' ";
             }
 
-
+            $segmentCount=20;
             if ($sortBy == 0 /*default recently */) {
-                $offset = $offset * 5;
-                $limit = " order by users.id  desc limit $offset,5 ";
+                $offset = $offset * $segmentCount;
+                $limit = " order by users.id  desc limit $offset,$segmentCount ";
             } else if ($sortBy == 1 /*score */) {
-                $offset = $offset * 5;
-                $limit = " order by users.score desc limit $offset,5 ";
+                $offset = $offset * $segmentCount;
+                $limit = " order by users.score desc limit $offset,$segmentCount ";
             } else if ($sortBy == 2 /*location */) {
-                $offset = $offset * 5;
-                $limit = " ORDER BY pow((pow(users.x_location-$x,2)+pow(users.y_location-$y,2)),0.5) limit $offset,5 ";
+                $offset = $offset * $segmentCount;
+                $limit = " ORDER BY pow((pow(users.x_location-$x,2)+pow(users.y_location-$y,2)),0.5) limit $offset,$segmentCount ";
             }
 
             $q = "SELECT users.* FROM `users` where   ($jobFilter)  and  $regionFilter and is_signed=1	 $limit ";
@@ -191,6 +191,7 @@ class Mechanic
         } else
             return $regions;
     }
+
     function getMechanicMovies()
     {
         include_once './../../vendor/autoload.php';
@@ -284,4 +285,26 @@ class Mechanic
             echo json_encode($mechanic_movie);
         }/**/
     }
+
+
+    public function addToCalledMechanic()
+    {
+        header('Content-Type: application/json');
+        $conn = MyPDO::getInstance();
+        $userId = app::get("userId");
+        $goodId = app::get("mechanicId");
+
+        $date = new DateTime('now', new DateTimeZone('Asia/tehran'));
+        $currentTime = $date->format('Y-m-d H:i:s');
+
+        //$q = "INSERT INTO `called_mechanics` (  `user_id`, `good_id`, `date`) VALUES (NULL, :userId, :goodId, :currentTime);";
+        $q ="INSERT INTO `called_mechanics` (`customer_id`, `mechanic_id`, `date`) VALUES (:userId, :goodId, :currentTime)";
+        $stmt = $conn->prepare($q);
+        $stmt->bindParam("userId", $userId);
+        $stmt->bindParam("goodId", $goodId);
+        $stmt->bindParam("currentTime", $currentTime);
+        $stmt->execute();
+
+    }
+
 }

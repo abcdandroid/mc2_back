@@ -48,9 +48,17 @@ switch ($route) {
     case sms:
         new SmsManager(false);
         break;
+    case "sendSmsForAnswers":
+        $a=new QandA();
+        $a->sendSmsForAnswers();
+        break;
     case "getEtcData":
         $a = new MainPage();
         $a->getEtcData();
+        break;
+    case "addToCalledMechanic":
+        $a = new Mechanic();
+        $a->addToCalledMechanic();
         break;
     case "getAllJobs":
         $a = new JobManager();
@@ -127,6 +135,10 @@ switch ($route) {
     case "getAnswers":
         $a = new QandA();
         $a->getAnswers();
+        break;
+    case "getAnswersById":
+        $a = new QandA();
+        $a->getAnswers(17);
         break;
     case "searchGood":
         $a = new Store();

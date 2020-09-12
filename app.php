@@ -263,6 +263,25 @@ class app
         return $id;
     }
 
+    public static function getMobileById($id){
+        $conn = MyPDO::getInstance();
+
+        $q = "select q_entrance_id from questions where q_id=:id";
+        $stmt = $conn->prepare($q);
+        $stmt->bindParam("id", $id);
+        $stmt->execute();
+        $q_entrance_id = $stmt->fetch(PDO::FETCH_ASSOC)["q_entrance_id"];
+
+        if ($q_entrance_id) {
+            $q = "select mobile from entrance where id=$q_entrance_id";
+            $stmt = $conn->prepare($q);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC)["mobile"];
+        } else {
+            return  -1 ;
+        }
+    }
+
     public static function getGoodById($id)
     {
 

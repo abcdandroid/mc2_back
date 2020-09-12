@@ -7,7 +7,6 @@ class MainPage
 
     public function getEtcData()
     {
-
         $conn = MyPDO::getInstance();
         $q = "SELECT * FROM `etcetera`";
         $stmt = $conn->prepare($q);
@@ -59,12 +58,12 @@ class MainPage
     {
 
 
-
         $conn = MyPDO::getInstance();
         $q = "SELECT * FROM `main_page`";
         $stmt = $conn->prepare($q);
         $stmt->execute();
         $mainPageData = array();
+
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
             if ($result['field'] == 3) {
                 $params = explode(',', $result['params']);
@@ -95,7 +94,17 @@ class MainPage
             }
             array_push($mainPageData, $result);
         }
-        echo json_encode($mainPageData);
+
+        $viewpagerData = array();
+        $q2 = "SELECT * FROM `viewpager_place`";
+        $stmt2 = $conn->prepare($q2);
+        $stmt2->execute();
+
+        while ($result = $stmt2->fetch(PDO::FETCH_ASSOC)) {
+            array_push($viewpagerData, $result);
+        }
+
+        echo json_encode(array("mainPageData" => $mainPageData, "viewpagerData" => $viewpagerData));
 
 
     }

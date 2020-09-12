@@ -60,7 +60,7 @@ class QandA
         // http://drkamal3.com/Mechanic/index.php?route=getQuestions&lastId=0&carId=0&titleId=0&&sortBy=1&showMyQuestion=0&entrance_id=0&offset=0
         $conn = MyPDO::getInstance();
         header('Content-Type: application/json');
-
+        $segmentCount = 20;
         //$mp_id = $_REQUEST["mp_id"];
         if ($mp_id != -1) {
             $mainQ = "SELECT questions.q_id,questions.q_entrance_id ,questions.q_text, questions.carId, questions.q_image_url1,questions.q_image_url2,
@@ -154,12 +154,12 @@ class QandA
             if ($sortBy == 1 /*default recently */) {/*
             $orderFilter = " questions.q_id ";*/
 
-                $limit = " order by questions.q_id desc limit 5 ";
+                $limit = " order by questions.q_id desc limit $segmentCount ";
                 if ($lastId != 0) $limit = " and questions.q_id<$lastId " . $limit;
 
             } else {/*$orderFilter = " seen_count ";*/
-                $offset = $offset * 5;
-                $limit = " order by count_question.seen_count desc  limit $offset,5 ";
+                $offset = $offset * $segmentCount;
+                $limit = " order by count_question.seen_count desc  limit $offset,$segmentCount ";
                 //if ($lastSeenCount != 0) $limit = " and (count_question.seen_count<=$lastSeenCount and questions.q_id<$lastId) " . $limit;
             }
 
@@ -321,7 +321,6 @@ class QandA
 
             $q = "select * from cars where name like '%$search%' order by name asc ";
 
-
             /* if($search="*") $q = "select * from cars";*/
         }
         $cars = array();
@@ -370,7 +369,7 @@ class QandA
     {
         $conn = MyPDO::getInstance();
         $q =/* "SELECT COUNT(*)  as nums from answers where q_id =$id and a_status=1 ";*/
-        "SELECT COUNT(*) as nums FROM (SELECT ans.*,users.*
+            "SELECT COUNT(*) as nums FROM (SELECT ans.*,users.*
               FROM (SELECT answers.*,entrance.type FROM `answers` LEFT JOIN entrance ON answers.a_entrance_id=entrance.id) AS ans LEFT JOIN users on ans.a_entrance_id=users.entrance_id 
               WHERE ans.q_id= $id and (users.is_signed=1 or users.is_signed is null ) and ( ans.a_status = 1 )  ORDER BY ans.type desc , ans.a_id asc) AS allAnswers";
         $stmt = $conn->prepare($q);
@@ -437,18 +436,59 @@ class QandA
                 }*/
     }
 
-    public function getAnswers()
+    public function sendSmsForAnswers()
     {
+        $conn = MyPDO::getInstance();
+        $q = "SELECT * from answers where a_status=1 && sms_sent=0";
+        $stmt = $conn->prepare($q);
+        $stmt->execute();
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $id = $result["q_id"];
+
+            $mobile = app::getMobileById($id);
+
+            $a_id = $result["a_id"];
+
+            ini_set("soap.wsdl_cache_enabled", "0");
+            $sms_client = new SoapClient('http://melipayamak.ir/post/send.asmx?wsdl',
+                array('encoding' => 'UTF-8'));
+            $param["username"] = "09215142663";
+            $param["password"] = "8991";
+            $param["from"] = "50004000142663";
+            $param["to"] = ["$mobile"];
+            $a = "شما یک پاسخ جدید دریافت کردید. برای مشاهده پاسخ روی لینک زیر کلیک کنید.\n";
+            $b = "https://online.mechanic.ir";
+            $param["text"] = $a . $b;
+            $param["isflash"] = false;
+            $data = $sms_client->SendSimpleSMS($param)->SendSimpleSMSResult;
+
+            $q2 = "update answers set sms_sent=1 where a_id = $a_id";
+            $stmt2 = $conn->prepare($q2);
+            $stmt2->execute();  /**/
+
+            //echo $mobile . "</br>";
+
+        }
+
+    }
+
+    public function getAnswers($id = -1)
+    {
+
+        $segmentCount = 15;
+        // http://drkamal3.com/Mechanic/index.php?route=getAnswers&q_id=17&offset=0
         $conn = MyPDO::getInstance();
         $q_id = app::get("q_id");
         $offset = app::get("offset");
-        $offset = $offset * 5;
+        $offset = $offset * $segmentCount;
+
+
         if ($q_id != 0)
             $qFilter = " ans.q_id= $q_id ";
         else $qFilter = " ans.q_id like '%' ";
         $q = "SELECT ans.*,users.*
               FROM (SELECT answers.*,entrance.type FROM `answers` LEFT JOIN entrance ON answers.a_entrance_id=entrance.id) AS ans LEFT JOIN users on ans.a_entrance_id=users.entrance_id 
-              WHERE $qFilter and (users.is_signed=1 or users.is_signed is null ) and ( ans.a_status = 1 )  ORDER BY ans.type desc , ans.a_id asc limit $offset,5";
+              WHERE $qFilter and (users.is_signed=1 or users.is_signed is null ) and ( ans.a_status = 1 )  ORDER BY ans.type desc , ans.a_id asc limit $offset,$segmentCount";
         /*
         $q = "SELECT ans.*,users.movies,users.job_ids,users.region_id,users.address,users.name,
               users.store_image_1,users.store_image_2,users.store_image_3,users.mechanic_image,users.store_name,users.phone_number,users.about,users.x_location,users.y_location,users.score
@@ -457,6 +497,7 @@ class QandA
 
 
         /* if($search="*") $q = "select * from cars";*/
+
 
         $stmt = $conn->prepare($q);
         $stmt->execute();
@@ -503,7 +544,7 @@ class QandA
         if (sizeof($answers) == 0)
             echo json_encode(array("msg" => "zeroSize", "answers" => $answers));
         else
-            echo json_encode(array("msg" => "$q", "answers" => $answers));
+            echo json_encode(array("msg" => $q, "answers" => $answers));
     }
 
 

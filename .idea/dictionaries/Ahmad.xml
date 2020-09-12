@@ -5,7 +5,9 @@
       <w>ffmpeg</w>
       <w>ffprobe</w>
       <w>imgsrc</w>
+      <w>isflash</w>
       <w>qand</w>
+      <w>viewpager</w>
     </words>
   </dictionary>
 </component>
