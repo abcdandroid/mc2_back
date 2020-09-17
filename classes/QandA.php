@@ -356,7 +356,6 @@ class QandA
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
             array_push($titles, $result);
         }
-
         if ($mp_id == -1) {
             header('Content-Type: application/json');
             echo json_encode($titles);
