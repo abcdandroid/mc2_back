@@ -311,6 +311,20 @@ class QandA
         echo "done";
     }
 
+    public function errorReport()
+    {
+        $id = app::get("id");
+        $type = app::get("type");
+        $phone = app::get("phone");
+
+
+        $conn = MyPDO::getInstance();
+        $q = "INSERT INTO `problem_report`(`type`, `problem_id`,`reporter_phone`) VALUES ( $type , $id , $phone) ";
+        $stmt = $conn->prepare($q);
+
+        $stmt->execute();
+    }
+
     public function searchCar($mp_id = -1)
     {
         $conn = MyPDO::getInstance();
@@ -441,12 +455,23 @@ class QandA
         $q = "SELECT * from answers where a_status=1 && sms_sent=0";
         $stmt = $conn->prepare($q);
         $stmt->execute();
+        $smsSent = array();
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $id = $result["q_id"];
 
             $mobile = app::getMobileById($id);
 
+            $smsSent[] = $mobile;
+
             $a_id = $result["a_id"];
+
+            $q2 = "update answers set sms_sent=1 where a_id = $a_id";
+            $stmt2 = $conn->prepare($q2);
+            $stmt2->execute();
+        }
+
+        $uniquePhones = array_unique($smsSent);
+        foreach ($uniquePhones as $phone) {
 
             ini_set("soap.wsdl_cache_enabled", "0");
             $sms_client = new SoapClient('http://melipayamak.ir/post/send.asmx?wsdl',
@@ -454,18 +479,12 @@ class QandA
             $param["username"] = "09215142663";
             $param["password"] = "8991";
             $param["from"] = "50004000142663";
-            $param["to"] = ["$mobile"];
-            $a = "شما یک پاسخ جدید دریافت کردید. برای مشاهده پاسخ روی لینک زیر کلیک کنید.\n";
+            $param["to"] = ["$phone"];
+            $a = "شما پاسخ جدید دریافت کردید. برای مشاهده پاسخ روی لینک زیر کلیک کنید.\n";
             $b = "https://online.mechanic.ir";
             $param["text"] = $a . $b;
             $param["isflash"] = false;
-            $data = $sms_client->SendSimpleSMS($param)->SendSimpleSMSResult;
-
-            $q2 = "update answers set sms_sent=1 where a_id = $a_id";
-            $stmt2 = $conn->prepare($q2);
-            $stmt2->execute();  /**/
-
-            //echo $mobile . "</br>";
+            $sms_client->SendSimpleSMS($param)->SendSimpleSMSResult;
 
         }
 
@@ -545,6 +564,8 @@ class QandA
         else
             echo json_encode(array("msg" => $q, "answers" => $answers));
     }
+
+
 
 
     //SELECT * FROM (SELECT answers.*,entrance.type FROM `answers` LEFT JOIN entrance ON answers.a_entrance_id=entrance.id) AS ans LEFT JOIN users on ans.a_entrance_id=users.entrance_id WHERE ans.q_id=62

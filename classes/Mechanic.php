@@ -27,7 +27,7 @@ class Mechanic
                 $tmpJobArray["entrance_id"] = "0";
                 $tmpJobArray["movies"] = array();
                 $tmpJobArray["job"] = array();
-                $tmpJobArray["region"] =array("id"=>-10,"name"=>"");
+                $tmpJobArray["region"] = array("id" => -10, "name" => "");
                 $tmpJobArray["address"] = "0";
                 $tmpJobArray["name"] = "0";
                 $tmpJobArray["store_image_1"] = "0";
@@ -52,7 +52,7 @@ class Mechanic
                 $tmpRegionArray["entrance_id"] = "0";
                 $tmpRegionArray["movies"] = array();
                 $tmpRegionArray["job"] = array();
-                $tmpRegionArray["region"] = array("id"=>-10,"name"=>"");
+                $tmpRegionArray["region"] = array("id" => -10, "name" => "");
                 $tmpRegionArray["address"] = "0";
                 $tmpRegionArray["name"] = "0";
                 $tmpRegionArray["store_image_1"] = "0";
@@ -77,7 +77,7 @@ class Mechanic
                 $tmpRegionAndJobArray["entrance_id"] = "0";
                 $tmpRegionAndJobArray["movies"] = array();
                 $tmpRegionAndJobArray["job"] = array();
-                $tmpRegionAndJobArray["region"] = array("id"=>-10,"name"=>"");
+                $tmpRegionAndJobArray["region"] = array("id" => -10, "name" => "");
                 $tmpRegionAndJobArray["address"] = "0";
                 $tmpRegionAndJobArray["name"] = "0";
                 $tmpRegionAndJobArray["store_image_1"] = "0";
@@ -108,7 +108,7 @@ class Mechanic
                 $regionFilter = " region  like '%' ";
             }
 
-            $segmentCount=20;
+            $segmentCount = 20;
             if ($sortBy == 0 /*default recently */) {
                 $offset = $offset * $segmentCount;
                 $limit = " order by users.id  desc limit $offset,$segmentCount ";
@@ -128,11 +128,11 @@ class Mechanic
         while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $result["job"] = app::getJobsById($result["job"]);
             $result["region"] = app::getRegionById($result["region"]);
-            $result["movies"] = app::getMoviesBySizAndDesc($result["id"] );
+            $result["movies"] = app::getMoviesBySizAndDesc($result["id"]);
             array_push($mechanics, $result);
-        } 
+        }
         if ($mp_id == -1) {
-            echo json_encode(array("msg" => $q, "mechanic" => $mechanics)); /* */
+            echo json_encode(array("msg" => "success", "mechanic" => $mechanics)); /* */
             return null;
         } else
             return $mechanics;
@@ -173,9 +173,9 @@ class Mechanic
         if ($mp_id != -1) {
             $q = "select * from regions where id = $mp_id  ";
         } else {
-        $search = app::get("search");
+            $search = app::get("search");
 
-        $q = "select * from regions where name like '%$search%' order by name asc ";
+            $q = "select * from regions where name like '%$search%' order by name asc ";
         }
         /* if($search="*") $q = "select * from cars";*/
 
@@ -220,7 +220,7 @@ class Mechanic
             $response = curl_exec($curl);
             $response = json_decode($response, true); //because of true, it's in an array
             $result["movie_preview"] = $response["video"]["big_poster"];
-          //  $result["movie_size"] = $response["video"]["size"];
+            //  $result["movie_size"] = $response["video"]["size"];
             array_push($mechanic_movie, $result);
         }
         curl_close($curl);
@@ -275,16 +275,17 @@ class Mechanic
         }
 
         if (!in_array(false, $mechanic_movie)) {
-          //  return ($mechanic_movie);
+            //  return ($mechanic_movie);
             echo json_encode($mechanic_movie);
         } else {
             $array1 = array();
-            array_push($array1, array("id" => "0", "user_id" => -1, "movie_size" => -1, "movie_url" => "", "movie_desc" => "", "movie_offset" => -1, "movie_preview" => "" ));
+            array_push($array1, array("id" => "0", "user_id" => -1, "movie_size" => -1, "movie_url" => "", "movie_desc" => "", "movie_offset" => -1, "movie_preview" => ""));
             //return ($array1);
 
             echo json_encode($mechanic_movie);
         }/**/
     }
+
 
 
     public function addToCalledMechanic()
@@ -298,7 +299,7 @@ class Mechanic
         $currentTime = $date->format('Y-m-d H:i:s');
 
         //$q = "INSERT INTO `called_mechanics` (  `user_id`, `good_id`, `date`) VALUES (NULL, :userId, :goodId, :currentTime);";
-        $q ="INSERT INTO `called_mechanics` (`customer_id`, `mechanic_id`, `date`) VALUES (:userId, :goodId, :currentTime)";
+        $q = "INSERT INTO `called_mechanics` (`customer_id`, `mechanic_id`, `date`) VALUES (:userId, :goodId, :currentTime)";
         $stmt = $conn->prepare($q);
         $stmt->bindParam("userId", $userId);
         $stmt->bindParam("goodId", $goodId);

@@ -6,6 +6,13 @@
  * Date: 02/15/2020
  * Time: 20:06
  */
+
+
+require './../../vendor/autoload.php';
+
+use Melipayamak\MelipayamakApi;
+
+
 class SmsManager
 {
 
@@ -28,6 +35,7 @@ class SmsManager
 
     public function prepareCode()
     {
+
 //http://drkamal3.com/Mechanic/index.php?route=sms&action=prepareCode&mobile=147  00:49  //1685    20:19
         $conn = MyPDO::getInstance();
         $mobile = app::get(mobile);
@@ -50,7 +58,7 @@ class SmsManager
         //send sms
 
 
-        $username = '09215142663';
+/*        $username = '09215142663';
         $password = '8991';
         $to = $mobile;
         $from = '500040001426';
@@ -65,7 +73,21 @@ class SmsManager
         $param["to"] = ["$mobile"];
         $param["text"] = "کد فعال سازی شما $code می باشد";
         $param["isflash"] = false;
-        $data = $sms_client->SendSimpleSMS($param)->SendSimpleSMSResult;
+        $data = $sms_client->SendSimpleSMS($param)->SendSimpleSMSResult;*/
+
+
+        $username = "09215142663";
+        $password = "8991";
+        $api = new MelipayamakApi($username, $password);
+
+        $sms = $api->sms("soap");
+        $to = "$mobile";
+        $text = "$code";
+        $bodyId = 26657;
+
+        $response = $sms->sendByBaseNumber($text, $to, $bodyId);
+
+
     }
 
 

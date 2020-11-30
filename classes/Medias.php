@@ -101,6 +101,33 @@ class Medias
         }
     }
 
+    public function getAdminMediasFromAparatApiWebView()
+    {
+
+        $conn = MyPDO::getInstance();
+        $segmentCount=20;
+        $offset = app::get("offset");
+        $offset = $offset * $segmentCount;
+        $q = "SELECT * FROM `admin_movies` limit $offset,$segmentCount";
+       // $q = "SELECT * FROM `admin_movies` ";
+        $stmt = $conn->prepare($q);
+        $stmt->execute();
+        $mechanic_movie = array();
+
+
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            array_push($mechanic_movie, $result);
+        }
+
+        if (!in_array(false, $mechanic_movie)) {
+            echo json_encode($mechanic_movie);
+        } else {
+            $array1 = array();
+            array_push($array1, array("id" => "0", "url" => ""));
+            echo json_encode($array1);
+        }
+    }
+
     function curl_get_file_size()
     {
 

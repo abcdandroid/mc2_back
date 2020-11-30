@@ -26,6 +26,7 @@ include "classes/Ads.php";
 include "classes/UploadedFiles.php";
 include "classes/Mechanic.php";
 include "classes/MainPage.php";
+include "classes/test.php";
 
 
 /*
@@ -49,7 +50,7 @@ switch ($route) {
         new SmsManager(false);
         break;
     case "sendSmsForAnswers":
-        $a=new QandA();
+        $a = new QandA();
         $a->sendSmsForAnswers();
         break;
     case "getEtcData":
@@ -75,6 +76,10 @@ switch ($route) {
     case "getAdminMediasFromAparatApi":
         $a = new Medias();
         $a->getAdminMediasFromAparatApi();
+        break;
+    case "getAdminMediasFromAparatApiWebView":
+        $a = new Medias();
+        $a->getAdminMediasFromAparatApiWebView();
         break;
     case "getMediasByLocationId":
         $a = new JobManager();
@@ -123,6 +128,10 @@ switch ($route) {
     case "searchCar":
         $a = new QandA();
         $a->searchCar();
+        break;
+    case "errorReport":
+        $a = new QandA();
+        $a->errorReport();
         break;
     case "getQuestions":
         $a = new QandA();
@@ -244,9 +253,29 @@ switch ($route) {
         $a = new UploadedFiles();
         $a->addTestMechanic();
         break;
+    case "addTestQuestionsAndAnswers":
+        $a = new UploadedFiles();
+        $a->addTestQuestionsAndAnswers();
+        break;
+    case "addTestAnswers":
+        $a = new UploadedFiles();
+        $a->addTestAnswers();
+        break;
+    case "addTestGoods":
+        $a = new UploadedFiles();
+        $a->addTestGoods();
+        break;
     case "fileSize":
         $a = new Medias();
         $a->curl_get_file_size("https://as7.cdn.asset.aparat.com/aparat-video/ab3f273159ec4f059a1bd67b39ea3f6423814589-360p.mp4");
+        break;
+    case "testMsg":
+        $a = new test();
+        $a->testMsg();
+        break;
+    case "testMath":
+        $a = new test();
+        $a->testMath();
         break;
     default :
         echo "not valid route";

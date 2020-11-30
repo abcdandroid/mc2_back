@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="MySQL - phpMyAdmin@ir-linux12.ihglobaldns.com" uuid="14413aae-2646-4abb-a591-e93c5496e872">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://ir-linux12.ihglobaldns.com:3306/phpMyAdmin?db=drkamal3_com_mechanic</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="MariaDB - jdbc:mariadb://ir-linux12.ihglobaldns.com:8443/phpMyAdmin/index.php?db=drkamal3_com_mechanic" uuid="0845779e-94d4-451a-b3f3-c2693b0d9b11">
+      <driver-ref>mariadb</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mariadb://ir-linux12.ihglobaldns.com:8443/phpMyAdmin/index.php?db=drkamal3_com_mechanic</jdbc-url>
+    </data-source>
+  </component>
+</project>
